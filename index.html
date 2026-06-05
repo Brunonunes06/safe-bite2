@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safe-Bite - O Assistente de Segurança Alimentar</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" href="Logos/logo.jpeg" type="image/jpeg">
+  <style>
+    /* SPA Routing Styles */
+    .page-section {
+      display: none;
+    }
+    
+    .page-section.active {
+      display: block;
+    }
+    
+    /* Loading Page Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .loading-page {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .loading-container {
+      text-align: center;
+      color: white;
+      z-index: 10;
+      position: relative;
+    }
+
+    .logo-container {
+      margin-bottom: 3rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .logo {
+      font-size: 4rem;
+      color: #2ecc71;
+      text-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .logo-text {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-top: 1rem;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #2ecc71;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Dashboard specific styles */
+    .dashboard-container {
+      min-height: 100vh;
+      background: var(--light-gray);
+      padding: 20px;
+      padding-top: 80px;
+    }
+
+    .dashboard-header {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .dashboard-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition-normal);
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .icon-green {
+      background: rgba(46, 204, 113, 0.1);
+      color: var(--primary-green);
+    }
+
+    .icon-blue {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+    }
+
+    .icon-purple {
+      background: rgba(155, 89, 182, 0.1);
+      color: #9b59b6;
+    }
+
+    .icon-orange {
+      background: rgba(243, 156, 18, 0.1);
+      color: #f39c12;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    /* Login/Signup specific styles */
+    .login-container, .signup-container {
+      min-height: 100vh;
+      background: var(--gradient-hero);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-card, .signup-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      min-height: 600px;
+    }
+
+    .signup-card {
+      max-width: 1000px;
+      min-height: 700px;
+    }
+
+    .login-left, .signup-left {
+      flex: 1;
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .signup-left {
+      flex: 1;
+    }
+
+    .login-right, .signup-right {
+      flex: 1;
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .signup-right {
+      flex: 1.2;
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    .login-logo, .signup-logo {
+      font-size: 3rem;
+      color: var(--primary-green);
+      margin-bottom: 1rem;
+    }
+
+    .login-title, .signup-title {
+      font-size: 2rem;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .login-subtitle, .signup-subtitle {
+      color: var(--text-light);
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    /* Scanner specific styles */
+    .scanner-container {
+      min-height: 100vh;
+      background: var(--gradient-hero);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scanner-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .scanner-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .scanner-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Payment specific styles */
+    .payment-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .payment-header {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 100;
+    }
+
+    /* Settings specific styles */
+    .settings-container {
+      min-height: 100vh;
+      background: var(--gradient-hero);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Profile specific styles */
+    .profile-container {
+      display: flex;
+      min-height: 100vh;
+      background: #f8f9fa;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+      color: white;
+      padding: 2rem 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-main {
+      flex: 1;
+      margin-left: 280px;
+      padding: 2rem;
+    }
+
+    /* History specific styles */
+    .history-container {
+      min-height: 100vh;
+      background: var(--light-gray);
+      display: flex;
+      flex-direction: column;
+      padding-top: 80px;
+    }
+
+    .history-header {
+      background: white;
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    /* Privacy specific styles */
+    .privacy-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .privacy-header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .privacy-main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .privacy-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Plans specific styles */
+    .plans-container {
+      max-width: 1100px;
+      margin: 6rem auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem
+    }
+
+    .plan-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--medium-gray);
+      box-shadow: var(--shadow-sm)
+    }
+
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .plan-price {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary-green)
+    }
+
+    .plan-features {
+      margin: 1rem 0 1.25rem;
+      padding-left: 1rem
+    }
+
+    /* Allergy Scanner specific styles */
+    .allergy-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Help specific styles */
+    .help-container {
+      min-height: 100vh;
+      background: var(--gradient-hero);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .help-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Payment Tester specific styles */
+    .payment-tester-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+
+    .tester-panel {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .output-panel {
+      background: #1e1e1e;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .output-panel h3 {
+      color: #2ecc71;
+      margin-bottom: 1rem;
+    }
+
+    #output {
+      font-family: 'Courier New', monospace;
+      color: #d4d4d4;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .output-line {
+      padding: 0.5rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .output-line.success {
+      color: #2ecc71;
+    }
+
+    .output-line.error {
+      color: #e74c3c;
+    }
+
+    .output-line.info {
+      color: #3498db;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Loading Page -->
+  <div id="page-loading" class="page-section loading-page">
+    <div class="loading-container">
+      <div class="logo-container">
+        <div class="logo">
+          <i class="fas fa-leaf"></i>
+        </div>
+        <div class="logo-text">Safe-Bite</div>
+      </div>
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Carregando...</div>
+    </div>
+  </div>
+
+  <!-- Home Page -->
+  <div id="page-home" class="page-section">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <!-- Logo -->
+          <div class="logo">
+            <i class="fas fa-leaf"></i>
+            <span>Safe-Bite</span>
+          </div>
+          
+          <!-- Navigation Menu -->
+          <nav class="nav-menu">
+            <ul>
+              <li><a href="#home" class="nav-link">Início</a></li>
+              <li><a href="#home-sobre" class="nav-link">Sobre</a></li>
+              <li><a href="#home-contato" class="nav-link">Contato</a></li>
+              <li><a href="#dashboard" class="nav-link" id="dashboardLink" style="color: rgb(231, 76, 60);"><i class="fas fa-lock"></i> Dashboard</a></li>
+            </ul>
+          </nav>
+          
+          <!-- Controls Container -->
+          <div class="header-controls">
+            <div class="auth-status-container">
+              <span class="auth-status offline" id="authStatus">Desconectado</span>
+              <div class="user-info" id="userInfo">
+                <div class="login-prompt" style="cursor: pointer;">
+                  <i class="fas fa-user-slash"></i>
+                  <span>Faça login para continuar</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mobile Menu Toggle -->
+          <div class="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home-inicio" class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            Sua segurança alimentar com <span>inteligência artificial</span>
+          </h1>
+          <p class="hero-subtitle">
+            Proteja sua saúde e evite alimentos perigosos com tecnologia inteligente
+          </p>
+          <button class="btn-hero" onclick="handleHeroStartFree()">
+            Começar grátis
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        <div class="hero-image">
+          <div class="phone-mockup">
+            <div class="screen">
+              <div class="app-interface">
+                <div class="scan-area">
+                  <i class="fas fa-camera"></i>
+                  <p>Aponte para o rótulo</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sobre Section -->
+    <section id="home-sobre" class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Sobre a Safe-Bite</h2>
+          <p class="section-subtitle">
+            Promovemos saúde pública e inclusão através da tecnologia
+          </p>
+        </div>
+        
+        <div class="about-content">
+          <div class="about-text">
+            <p>
+              A Safe-Bite é uma startup tecnológica dedicada a revolucionar a segurança alimentar 
+              através da inteligência artificial. Nossa missão é ajudar pessoas com restrições 
+              alimentares a tomar decisões mais seguras e informadas sobre o que consomem.
+            </p>
+            <p>
+              Com tecnologia avançada de reconhecimento de imagem e análise nutricional, 
+              oferecemos uma solução acessível que coloca o poder da informação nas mãos dos consumidores.
+            </p>
+            <div class="stats">
+              <div class="stat">
+                <h3>95%</h3>
+                <p>Precisão na análise</p>
+              </div>
+              <div class="stat">
+                <h3>10k+</h3>
+                <p>Produtos analisados</p>
+              </div>
+              <div class="stat">
+                <h3>24/7</h3>
+                <p>Disponibilidade</p>
+              </div>
+            </div>
+          </div>
+          <div class="about-image">
+            <div class="illustration">
+              <i class="fas fa-shield-alt"></i>
+              <div class="pulse-ring"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Como Funciona Section -->
+    <section id="home-como-funciona" class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <h2>Como Funciona</h2>
+          <p class="section-subtitle">
+            Análise inteligente em 3 passos simples
+          </p>
+        </div>
+        
+        <div class="steps">
+          <div class="step">
+            <div class="step-icon">
+              <i class="fas fa-camera"></i>
+            </div>
+            <h3>1. Escaneie o rótulo</h3>
+            <p>
+              Use seu celular para capturar a imagem do rótulo do produto. 
+              Nossa tecnologia reconhece automaticamente as informações.
+            </p>
+          </div>
+          
+          <div class="step">
+            <div class="step-icon">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h3>2. IA analisa ingredientes</h3>
+            <p>
+              Nossa inteligência artificial processa os ingredientes, 
+              identificando potenciais riscos e alérgenos.
+            </p>
+          </div>
+          
+          <div class="step">
+            <div class="step-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>3. Receba alertas de risco</h3>
+            <p>
+              Obtenha recomendações personalizadas e alertas sobre 
+              componentes que podem afetar sua saúde.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Planos Section -->
+    <section id="home-planos" class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Nossos Planos</h2>
+          <p class="section-subtitle">
+            Escolha o plano ideal para suas necessidades
+          </p>
+        </div>
+        
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h3>Gratuito</h3>
+              <div class="price">
+                <span class="currency">R$</span>
+                <span class="amount">0</span>
+                <span class="period">/mês</span>
+              </div>
+            </div>
+            <div class="pricing-features">
+              <ul>
+                <li><i class="fas fa-check"></i> Até 10 scans por mês</li>
+                <li><i class="fas fa-check"></i> Análise básica</li>
+                <li><i class="fas fa-check"></i> Suporte por email</li>
+              </ul>
+            </div>
+            <div class="pricing-action">
+              <button class="btn-pricing" onclick="selectPlan('free')">Começar grátis</button>
+            </div>
+          </div>
+          
+          <div class="pricing-card featured">
+            <div class="pricing-badge">Mais popular</div>
+            <div class="pricing-header">
+              <h3>Profissional</h3>
+              <div class="price">
+                <span class="currency">R$</span>
+                <span class="amount">9,90</span>
+                <span class="period">/mês</span>
+              </div>
+            </div>
+            <div class="pricing-features">
+              <ul>
+                <li><i class="fas fa-check"></i> Scans ilimitados</li>
+                <li><i class="fas fa-check"></i> Análise avançada</li>
+                <li><i class="fas fa-check"></i> Histórico completo</li>
+                <li><i class="fas fa-check"></i> Suporte prioritário</li>
+              </ul>
+            </div>
+            <div class="pricing-action">
+              <button class="btn-pricing" onclick="selectPlan('professional')">Assinar agora</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contato Section -->
+    <section id="home-contato" class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <h2>Entre em Contato</h2>
+          <p class="section-subtitle">
+            Tem dúvidas? Estamos aqui para ajudar
+          </p>
+        </div>
+        
+        <div class="contact-content">
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <div>
+                <h4>Email</h4>
+                <p>contato@safebite.com.br</p>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <i class="fas fa-phone"></i>
+              <div>
+                <h4>Telefone</h4>
+                <p>(11) 3000-0000</p>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <div>
+                <h4>Endereço</h4>
+                <p>São Paulo, SP - Brasil</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="contact-form">
+            <form id="contactForm">
+              <div class="form-group">
+                <label for="name">Nome</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="message">Mensagem</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+              </div>
+              
+              <button type="submit" class="btn-submit">
+                Enviar mensagem
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>Safe-Bite</h4>
+            <p>Seu assistente de segurança alimentar</p>
+          </div>
+          
+          <div class="footer-section">
+            <h4>Links Úteis</h4>
+            <ul>
+              <li><a href="#home-sobre">Sobre</a></li>
+              <li><a href="#home-como-funciona">Como Funciona</a></li>
+              <li><a href="#home-planos">Planos</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h4>Legal</h4>
+            <ul>
+              <li><a href="#privacy">Privacidade</a></li>
+              <li><a href="#terms">Termos</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h4>Redes Sociais</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; 2026 Safe-Bite. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="page-dashboard" class="page-section">
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <i class="fas fa-leaf"></i>
+            <span>Safe-Bite</span>
+          </div>
+          <nav class="nav-menu">
+            <ul>
+              <li><a href="#home" class="nav-link">Início</a></li>
+              <li><a href="#scanner" class="nav-link">Scanner</a></li>
+              <li><a href="#settings" class="nav-link">Configurações</a></li>
+              <li><a href="#" class="nav-link" id="logoutBtn">Sair</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-container">
+      <div class="container">
+        <div class="dashboard-header">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <h1 style="margin-bottom: 10px;">Bem-vindo de volta!</h1>
+              <p style="color: var(--text-light);" id="userWelcome">Carregando...</p>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.9rem; color: var(--text-light);">Plano Atual</div>
+              <div style="font-size: 1.2rem; font-weight: 600; color: var(--primary-green);" id="userPlan">Carregando...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="stat-value" id="totalScans">0</div>
+                <div class="stat-label">Total de Scans</div>
+              </div>
+              <div class="card-icon icon-green">
+                <i class="fas fa-barcode"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="stat-value" id="safeProducts">0</div>
+                <div class="stat-label">Produtos Seguros</div>
+              </div>
+              <div class="card-icon icon-blue">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="stat-value" id="warningsFound">0</div>
+                <div class="stat-label">Alertas</div>
+              </div>
+              <div class="card-icon icon-orange">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="stat-value" id="planUsage">0/10</div>
+                <div class="stat-label">Uso do Plano</div>
+              </div>
+              <div class="card-icon icon-purple">
+                <i class="fas fa-chart-pie"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <div class="dashboard-card">
+            <h3 class="card-title">Ações Rápidas</h3>
+            <div class="action-buttons">
+              <a href="#scanner" class="btn-dashboard btn-primary">
+                <i class="fas fa-camera"></i> Novo Scan
+              </a>
+              <a href="#history" class="btn-dashboard btn-secondary">
+                <i class="fas fa-history"></i> Ver Histórico
+              </a>
+              <a href="#payment" class="btn-dashboard btn-primary">
+                <i class="fas fa-crown"></i> Upgrade Premium
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="recent-scans">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Histórico de Scans</h3>
+            <div class="scan-controls">
+              <button class="btn-export" onclick="exportScanData()" title="Exportar dados">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="btn-toggle-view" onclick="toggleScanView()" title="Alternar visualização">
+                <i class="fas fa-th-large" id="viewToggleIcon"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="scan-filters">
+            <div class="filter-group">
+              <input type="text" id="scanSearch" placeholder="Buscar produtos..." onkeyup="filterScans()">
+              <i class="fas fa-search"></i>
+            </div>
+            <div class="filter-group">
+              <select id="statusFilter" onchange="filterScans()">
+                <option value="">Todos os status</option>
+                <option value="safe">Seguros</option>
+                <option value="warning">Alertas</option>
+                <option value="danger">Perigosos</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="dateFilter" onchange="filterScans()">
+                <option value="">Todas as datas</option>
+                <option value="today">Hoje</option>
+                <option value="week">Última semana</option>
+                <option value="month">Último mês</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="scans-list" id="recentScansList">
+            <div style="text-align: center; padding: 40px; color: var(--text-light);">
+              <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+              <p>Nenhum scan realizado ainda</p>
+              <p style="font-size: 0.9rem; margin-top: 10px;">Faça seu primeiro scan para começar!</p>
+            </div>
+          </div>
+          
+          <div class="scan-pagination" id="scanPagination" style="display: none;">
+            <button onclick="previousPage()" id="prevBtn" disabled>
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="pageInfo">Página 1 de 1</span>
+            <button onclick="nextPage()" id="nextBtn">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>Safe-Bite</h4>
+            <p>Seu assistente de segurança alimentar</p>
+          </div>
+          <div class="footer-section">
+            <h4>Links Úteis</h4>
+            <ul>
+              <li><a href="#home">Início</a></li>
+              <li><a href="#scanner">Scanner</a></li>
+              <li><a href="#help">Ajuda</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Legal</h4>
+            <ul>
+              <li><a href="#privacy">Privacidade</a></li>
+              <li><a href="#help">Termos</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 Safe-Bite. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Login Page -->
+  <div id="page-login" class="page-section">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-left">
+          <div class="login-logo">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <h2 class="login-title">Safe-Bite</h2>
+          <p class="login-subtitle">Seu assistente de segurança alimentar</p>
+          
+          <ul class="features-list">
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Scan de produtos com IA</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Verificação de alérgenos</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Histórico completo</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Relatórios personalizados</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="login-right">
+          <h2 class="login-title">Bem-vindo de volta!</h2>
+          <p class="login-subtitle">Faça login para continuar</p>
+
+          <div id="errorMessage" class="error-message"></div>
+          <div id="successMessage" class="success-message"></div>
+
+          <form id="loginForm" class="login-form">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Senha</label>
+              <input type="password" id="password" name="password" placeholder="Sua senha" required>
+            </div>
+
+            <div class="form-options">
+              <label class="remember-me">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <span>Lembrar-me</span>
+              </label>
+              <a href="#" class="forgot-password" onclick="handleForgotPassword(event)">Esqueceu a senha?</a>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+              <i class="fas fa-sign-in-alt"></i>
+              Entrar
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>ou</span>
+          </div>
+
+          <button class="google-login-btn" onclick="handleGoogleLogin()">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+            <span>Continuar com Google</span>
+          </button>
+
+          <div class="signup-link">
+            <p>Não tem uma conta? <a href="#signup" onclick="handleSignup(event)">Cadastre-se gratuitamente</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup Page -->
+  <div id="page-signup" class="page-section">
+    <div class="signup-container">
+      <div class="signup-card">
+        <div class="signup-left">
+          <div class="signup-logo">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <h2 class="signup-title">Nutri-Scan</h2>
+          <p class="signup-subtitle">Junte-se a milhares de pessoas cuidando da sua saúde</p>
+          
+          <div class="plan-preview">
+            <h4>🎁 Plano Free Inicial</h4>
+            <ul class="plan-features">
+              <li><i class="fas fa-check"></i>10 scans gratuitos por mês</li>
+              <li><i class="fas fa-check"></i>Verificação básica de alérgenos</li>
+              <li><i class="fas fa-check"></i>Histórico de scans</li>
+              <li><i class="fas fa-check"></i>Acesso ao dashboard</li>
+            </ul>
+          </div>
+
+          <ul class="features-list">
+            <li>
+              <i class="fas fa-shield-alt"></i>
+              <span>Segurança e privacidade</span>
+            </li>
+            <li>
+              <i class="fas fa-mobile-alt"></i>
+              <span>Compatível com todos dispositivos</span>
+            </li>
+            <li>
+              <i class="fas fa-headset"></i>
+              <span>Suporte dedicado</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="signup-right">
+          <h2 class="signup-title">Criar sua conta</h2>
+          <p class="signup-subtitle">Comece grátis em menos de 1 minuto</p>
+
+          <div id="errorMessage" class="error-message"></div>
+          <div id="successMessage" class="success-message"></div>
+
+          <form id="signupForm" class="signup-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">Nome</label>
+                <input type="text" id="firstName" name="firstName" placeholder="Seu nome" required>
+                <div class="error-text" id="firstNameError"></div>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Sobrenome</label>
+                <input type="text" id="lastName" name="lastName" placeholder="Seu sobrenome" required>
+                <div class="error-text" id="lastNameError"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+              <div class="error-text" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Senha</label>
+              <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" required>
+              <div class="error-text" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirmar Senha</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Digite a senha novamente" required>
+              <div class="error-text" id="confirmPasswordError"></div>
+            </div>
+
+            <div class="terms-group">
+              <label>
+                <input type="checkbox" id="terms" name="terms" required>
+                <span>Aceito os <a href="#" onclick="window.open('#terms', '_blank')">Termos de Uso</a> e a <a href="#" onclick="window.open('#privacy', '_blank')">Política de Privacidade</a></span>
+              </label>
+            </div>
+
+            <div class="terms-group">
+              <label>
+                <input type="checkbox" id="newsletter" name="newsletter">
+                <span>Desejo receber novidades e dicas por email</span>
+              </label>
+            </div>
+
+            <button type="submit" class="signup-btn" id="signupBtn">
+              <i class="fas fa-user-plus"></i>
+              Criar Conta Gratuita
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>ou</span>
+          </div>
+
+          <button class="google-signup-btn" onclick="handleGoogleSignup()">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+            <span>Criar conta com Google</span>
+          </button>
+
+          <div class="login-link">
+            <p>Já tem uma conta? <a href="#login">Faça login</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scanner Page -->
+  <div id="page-scanner" class="page-section">
+    <div class="scanner-container">
+      <header class="scanner-header">
+        <div class="scanner-logo">
+          <i class="fas fa-leaf"></i>
+          <span>Safe-Bite</span>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">JD</div>
+          <span id="userName">Bruno Teste</span>
+          <button class="btn-secondary" onclick="navigateTo('dashboard')" style="padding: 0.5rem 1rem;">
+            <i class="fas fa-home"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="scanner-main">
+        <div class="scanner-card">
+          <div class="scanner-header-card">
+            <h1 class="scanner-title">Scanner de Produtos</h1>
+            <p class="scanner-subtitle">Aponte a câmera para o rótulo e receba análise instantânea</p>
+          </div>
+
+          <div class="scanner-body">
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">
+                <i class="fas fa-camera"></i>
+              </div>
+              <h3 class="upload-title">Escolha como adicionar a foto</h3>
+              <p class="upload-text">Selecione uma das opções abaixo</p>
+              
+              <div class="upload-options">
+                <button class="upload-button camera-button" id="cameraButton">
+                  <i class="fas fa-camera"></i>
+                  Tirar Foto
+                </button>
+                <button class="upload-button gallery-button" id="galleryButton">
+                  <i class="fas fa-image"></i>
+                  Selecionar do Dispositivo
+                </button>
+              </div>
+              
+              <input type="file" id="cameraInput" class="file-input" accept="image/*" capture="environment">
+              <input type="file" id="galleryInput" class="file-input" accept="image/*">
+              
+              <div class="drag-drop-area" id="dragDropArea">
+                <p class="drag-text">Ou arraste uma imagem para cá</p>
+              </div>
+            </div>
+
+            <div class="processing-steps" id="processingSteps">
+              <div class="processing-step" id="step1">
+                <div class="step-icon waiting">
+                  <i class="fas fa-camera"></i>
+                </div>
+                <div class="step-text">
+                  <div class="step-title">Capturando imagem</div>
+                  <div class="step-description">Obtendo foto do rótulo...</div>
+                </div>
+              </div>
+              <div class="processing-step" id="step2">
+                <div class="step-icon waiting">
+                  <i class="fas fa-brain"></i>
+                </div>
+                <div class="step-text">
+                  <div class="step-title">Analisando com IA</div>
+                  <div class="step-description">Processando ingredientes...</div>
+                </div>
+              </div>
+              <div class="processing-step" id="step3">
+                <div class="step-icon waiting">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="step-text">
+                  <div class="step-title">Verificando segurança</div>
+                  <div class="step-description">Identificando riscos...</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+              <div class="result-header">
+                <h2 class="result-title">Análise Concluída</h2>
+                <span class="confidence-badge" id="confidenceBadge">95% confiança</span>
+              </div>
+
+              <div class="product-info">
+                <div class="product-name" id="productName">Nome do Produto</div>
+                <div class="product-details">
+                  <span id="productBrand">Marca</span>
+                  <span id="scanTime">Análise em 3.2s</span>
+                </div>
+              </div>
+
+              <div class="analysis-results">
+                <h3 class="section-title">
+                  <i class="fas fa-list"></i>
+                  Ingredientes Detectados
+                </h3>
+                <div class="ingredient-list" id="ingredientList">
+                </div>
+              </div>
+
+              <div class="alerts-section" id="alertsSection" style="display: none;">
+                <h3 class="section-title">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Alertas de Segurança
+                </h3>
+                <div id="alertsList">
+                </div>
+              </div>
+
+              <div class="recommendations">
+                <h3 class="section-title">
+                  <i class="fas fa-lightbulb"></i>
+                  Recomendações
+                </h3>
+                <div id="recommendationsList">
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <button class="btn btn-primary" onclick="saveScan()">
+                  <i class="fas fa-save"></i>
+                  Salvar Scan
+                </button>
+                <button class="btn btn-secondary" onclick="newScan()">
+                  <i class="fas fa-redo"></i>
+                  Novo Scan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Payment Page -->
+  <div id="page-payment" class="page-section">
+    <div class="payment-container">
+      <header class="payment-header">
+        <div class="payment-logo" onclick="navigateTo('home')">
+          <i class="fas fa-leaf"></i>
+          <span>Safe-Bite</span>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">JD</div>
+          <span id="userName">Bruno Teste</span>
+        </div>
+      </header>
+
+      <main class="payment-main">
+        <div class="container">
+          <div class="payment-content">
+            <h1 class="payment-title">Upgrade para Premium</h1>
+            <p class="payment-subtitle">Desbloqueie todos os recursos e scans ilimitados</p>
+            
+            <div class="payment-methods">
+              <button class="payment-method active" data-method="card">
+                <i class="fas fa-credit-card"></i>
+                Cartão de Crédito
+              </button>
+              <button class="payment-method" data-method="pix">
+                <i class="fas fa-qrcode"></i>
+                PIX
+              </button>
+              <button class="payment-method" data-method="boleto">
+                <i class="fas fa-barcode"></i>
+                Boleto
+              </button>
+            </div>
+
+            <div class="payment-form" id="cardForm">
+              <form id="paymentForm">
+                <div class="form-group">
+                  <label for="cardNumber">Número do Cartão</label>
+                  <input type="text" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" required>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="cardExpiry">Validade</label>
+                    <input type="text" id="cardExpiry" name="cardExpiry" placeholder="MM/AA" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="cardCVC">CVC</label>
+                    <input type="text" id="cardCVC" name="cardCVC" placeholder="123" required>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="cardName">Nome no Cartão</label>
+                  <input type="text" id="cardName" name="cardName" placeholder="Nome como está no cartão" required>
+                </div>
+                
+                <button type="submit" class="btn-payment">
+                  <i class="fas fa-lock"></i>
+                  Pagar R$ 9,90/mês
+                </button>
+              </form>
+            </div>
+
+            <div class="payment-form" id="pixForm" style="display: none;">
+              <div class="pix-container">
+                <div id="qrcode"></div>
+                <p class="pix-instructions">Escaneie o QR Code ou copie o código PIX</p>
+                <button class="btn-copy" onclick="copyPixCode()">
+                  <i class="fas fa-copy"></i>
+                  Copiar Código PIX
+                </button>
+              </div>
+            </div>
+
+            <div class="payment-form" id="boletoForm" style="display: none;">
+              <div class="boleto-container">
+                <p class="boleto-instructions">O boleto será gerado após a confirmação</p>
+                <button class="btn-boleto" onclick="generateBoleto()">
+                  <i class="fas fa-file-invoice"></i>
+                  Gerar Boleto
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Settings Page -->
+  <div id="page-settings" class="page-section">
+    <div class="settings-container">
+      <header class="settings-header">
+        <div class="settings-logo">
+          <i class="fas fa-leaf"></i>
+          <span>Safe-Bite</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-back" onclick="navigateTo('dashboard')">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+          </button>
+        </div>
+      </header>
+
+      <main class="settings-main">
+        <div class="container">
+          <h1 class="settings-title">Configurações</h1>
+          
+          <div class="settings-sections">
+            <div class="settings-section">
+              <h2 class="section-title">
+                <i class="fas fa-user"></i>
+                Perfil
+              </h2>
+              <div class="settings-content">
+                <div class="form-group">
+                  <label for="settingsName">Nome</label>
+                  <input type="text" id="settingsName" value="Bruno Teste">
+                </div>
+                <div class="form-group">
+                  <label for="settingsEmail">Email</label>
+                  <input type="email" id="settingsEmail" value="bruno@teste.com">
+                </div>
+                <button class="btn-save" onclick="saveSettings()">
+                  <i class="fas fa-save"></i>
+                  Salvar Alterações
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="section-title">
+                <i class="fas fa-bell"></i>
+                Notificações
+              </h2>
+              <div class="settings-content">
+                <label class="toggle-label">
+                  <input type="checkbox" checked>
+                  <span>Receber alertas de segurança</span>
+                </label>
+                <label class="toggle-label">
+                  <input type="checkbox" checked>
+                  <span>Receber novidades e atualizações</span>
+                </label>
+                <label class="toggle-label">
+                  <input type="checkbox">
+                  <span>Receber emails promocionais</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="section-title">
+                <i class="fas fa-shield-alt"></i>
+                Segurança
+              </h2>
+              <div class="settings-content">
+                <button class="btn-danger" onclick="changePassword()">
+                  <i class="fas fa-key"></i>
+                  Alterar Senha
+                </button>
+                <button class="btn-danger" onclick="enable2FA()">
+                  <i class="fas fa-mobile-alt"></i>
+                  Autenticação em 2 Fatores
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="section-title">
+                <i class="fas fa-trash"></i>
+                Zona de Perigo
+              </h2>
+              <div class="settings-content">
+                <button class="btn-delete" onclick="deleteAccount()">
+                  <i class="fas fa-user-times"></i>
+                  Excluir Conta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Profile Page -->
+  <div id="page-profile" class="page-section">
+    <div class="profile-container">
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <i class="fas fa-leaf"></i>
+            <span>Safe-Bite</span>
+          </div>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a href="#profile" class="active"><i class="fas fa-user"></i> Perfil</a></li>
+          <li><a href="#settings"><i class="fas fa-cog"></i> Configurações</a></li>
+          <li><a href="#history"><i class="fas fa-history"></i> Histórico</a></li>
+          <li><a href="#payment"><i class="fas fa-crown"></i> Assinatura</a></li>
+          <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+      </div>
+
+      <main class="profile-main">
+        <h1 class="profile-title">Meu Perfil</h1>
+        
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+              <h2>Bruno Teste</h2>
+              <p>bruno@teste.com</p>
+              <span class="badge badge-premium">Premium</span>
+            </div>
+          </div>
+
+          <form id="profileForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="profileFirstName">Nome</label>
+                <input type="text" id="profileFirstName" value="Bruno">
+              </div>
+              <div class="form-group">
+                <label for="profileLastName">Sobrenome</label>
+                <input type="text" id="profileLastName" value="Teste">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profileEmail">Email</label>
+              <input type="email" id="profileEmail" value="bruno@teste.com">
+            </div>
+
+            <div class="form-group">
+              <label for="profilePhone">Telefone</label>
+              <input type="tel" id="profilePhone" value="(11) 99999-9999">
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="cancelProfile()">
+                Cancelar
+              </button>
+              <button type="button" class="btn btn-primary" onclick="saveProfile()">
+                Salvar Alterações
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- History Page -->
+  <div id="page-history" class="page-section">
+    <div class="history-container">
+      <header class="history-header">
+        <div class="history-logo">
+          <i class="fas fa-leaf"></i>
+          <span>Safe-Bite</span>
+        </div>
+        <div class="history-nav">
+          <button class="nav-btn active" data-view="history">
+            <i class="fas fa-history"></i>
+            Histórico
+          </button>
+          <button class="nav-btn" data-view="statistics">
+            <i class="fas fa-chart-bar"></i>
+            Estatísticas
+          </button>
+        </div>
+        <div class="header-actions">
+          <button class="btn-back" onclick="navigateTo('dashboard')">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+          </button>
+        </div>
+      </header>
+
+      <main class="history-main">
+        <div class="container">
+          <h1 class="history-title">Histórico de Scans</h1>
+          
+          <div class="history-filters">
+            <div class="filter-group">
+              <input type="text" id="historySearch" placeholder="Buscar produtos...">
+              <i class="fas fa-search"></i>
+            </div>
+            <div class="filter-group">
+              <select id="historyFilter">
+                <option value="">Todos os status</option>
+                <option value="safe">Seguros</option>
+                <option value="warning">Alertas</option>
+                <option value="danger">Perigosos</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="historyDate">
+                <option value="">Todas as datas</option>
+                <option value="today">Hoje</option>
+                <option value="week">Última semana</option>
+                <option value="month">Último mês</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="history-list" id="historyList">
+            <div style="text-align: center; padding: 40px; color: var(--text-light);">
+              <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+              <p>Nenhum scan realizado ainda</p>
+              <button class="btn-primary" onclick="navigateTo('scanner')">
+                <i class="fas fa-camera"></i>
+                Fazer Primeiro Scan
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Help Page -->
+  <div id="page-help" class="page-section">
+    <div class="help-container">
+      <header class="help-header">
+        <div class="help-logo">
+          <i class="fas fa-leaf"></i>
+          <span>Safe-Bite</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-back" onclick="navigateTo('dashboard')">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+          </button>
+        </div>
+      </header>
+
+      <main class="help-main">
+        <div class="container">
+          <h1 class="help-title">Central de Ajuda</h1>
+          
+          <div class="help-sections">
+            <div class="help-section">
+              <h2 class="section-title">
+                <i class="fas fa-question-circle"></i>
+                Perguntas Frequentes
+              </h2>
+              <div class="faq-list">
+                <div class="faq-item">
+                  <h3>Como funciona o scanner?</h3>
+                  <p>Basta apontar a câmera do seu celular para o rótulo do produto e nossa IA analisará os ingredientes automaticamente.</p>
+                </div>
+                <div class="faq-item">
+                  <h3>Quais alérgenos são detectados?</h3>
+                  <p>Detectamos os principais alérgenos como glúten, lactose, nozes, frutos do mar, ovos, soja e outros.</p>
+                </div>
+                <div class="faq-item">
+                  <h3>Como funciona o plano Premium?</h3>
+                  <p>O plano Premium oferece scans ilimitados, análise avançada, histórico completo e suporte prioritário por apenas R$ 9,90/mês.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="help-section">
+              <h2 class="section-title">
+                <i class="fas fa-envelope"></i>
+                Entre em Contato
+              </h2>
+              <div class="contact-options">
+                <button class="btn-contact" onclick="openChat()">
+                  <i class="fas fa-comments"></i>
+                  Chat ao Vivo
+                </button>
+                <button class="btn-contact" onclick="sendEmail()">
+                  <i class="fas fa-envelope"></i>
+                  Enviar Email
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Privacy Page -->
+  <div id="page-privacy" class="page-section">
+    <div class="privacy-container">
+      <header class="privacy-header">
+        <div class="privacy-logo">
+          <i class="fas fa-leaf"></i>
+          <span>Safe-Bite</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-back" onclick="navigateTo('home')">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+          </button>
+        </div>
+      </header>
+
+      <main class="privacy-main">
+        <div class="privacy-card">
+          <div class="privacy-header-card">
+            <h1 class="privacy-title">Política de Privacidade</h1>
+            <p class="privacy-subtitle">Última atualização: Janeiro de 2026</p>
+          </div>
+
+          <div class="privacy-content">
+            <h2>1. Coleta de Informações</h2>
+            <p>Coletamos informações que você nos fornece diretamente, como nome, email e informações de perfil quando você se cadastra em nosso serviço.</p>
+
+            <h2>2. Uso das Informações</h2>
+            <p>Utilizamos suas informações para fornecer, manter e melhorar nossos serviços, além de comunicar novidades e atualizações.</p>
+
+            <h2>3. Compartilhamento de Informações</h2>
+            <p>Não vendemos suas informações pessoais. Compartilhamos dados apenas com terceiros confiáveis para operar nosso serviço.</p>
+
+            <h2>4. Segurança</h2>
+            <p>Implementamos medidas de segurança robustas para proteger suas informações contra acesso não autorizado.</p>
+
+            <h2>5. Seus Direitos</h2>
+            <p>Você tem o direito de acessar, corrigir ou excluir suas informações pessoais a qualquer momento.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Plans Page -->
+  <div id="page-plans" class="page-section">
+    <div class="plans-container">
+      <div class="plan-card">
+        <div class="plan-header">
+          <h3>Gratuito</h3>
+          <div class="plan-price">R$ 0/mês</div>
+        </div>
+        <div class="plan-features">
+          <ul>
+            <li><i class="fas fa-check"></i>10 scans por mês</li>
+            <li><i class="fas fa-check"></i>Análise básica</li>
+            <li><i class="fas fa-check"></i>Suporte por email</li>
+          </ul>
+        </div>
+        <button class="btn-plan" onclick="selectPlan('free')">Começar Grátis</button>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-badge">Recomendado</div>
+        <div class="plan-header">
+          <h3>Profissional</h3>
+          <div class="plan-price">R$ 9,90/mês</div>
+        </div>
+        <div class="plan-features">
+          <ul>
+            <li><i class="fas fa-check"></i>Scans ilimitados</li>
+            <li><i class="fas fa-check"></i>Análise avançada</li>
+            <li><i class="fas fa-check"></i>Histórico completo</li>
+            <li><i class="fas fa-check"></i>Suporte prioritário</li>
+          </ul>
+        </div>
+        <button class="btn-plan" onclick="selectPlan('professional')">Assinar Agora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Allergy Scanner Page -->
+  <div id="page-allergy-scanner" class="page-section">
+    <div class="allergy-container">
+      <h1>Analisador de Alergias</h1>
+      <p>Verifique se um produto contém alérgenos que você precisa evitar</p>
+      
+      <div class="allergy-form">
+        <div class="form-group">
+          <label for="allergyInput">Digite os ingredientes ou cole o rótulo:</label>
+          <textarea id="allergyInput" rows="5" placeholder="Cole aqui a lista de ingredientes..."></textarea>
+        </div>
+        
+        <div class="allergy-selection">
+          <h3>Selecione seus alérgenos:</h3>
+          <div class="allergy-checkboxes">
+            <label><input type="checkbox" value="gluten"> Glúten</label>
+            <label><input type="checkbox" value="lactose"> Lactose</label>
+            <label><input type="checkbox" value="nuts"> Nozes</label>
+            <label><input type="checkbox" value="seafood"> Frutos do Mar</label>
+            <label><input type="checkbox" value="eggs"> Ovos</label>
+            <label><input type="checkbox" value="soy"> Soja</label>
+          </div>
+        </div>
+        
+        <button class="btn-analyze" onclick="analyzeAllergens()">
+          <i class="fas fa-search"></i>
+          Analisar
+        </button>
+      </div>
+      
+      <div class="allergy-results" id="allergyResults" style="display: none;">
+        <h2>Resultados da Análise</h2>
+        <div id="allergyResultsContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Tester Page -->
+  <div id="page-payment-tester" class="page-section">
+    <div class="payment-tester-container">
+      <h1>Testador de Pagamentos</h1>
+      <p>Ferramenta para testar o sistema de pagamentos</p>
+      
+      <div class="tester-panel">
+        <h2>Testar Integração</h2>
+        <div class="test-controls">
+          <button class="btn-test" onclick="testPaymentIntegration()">
+            <i class="fas fa-play"></i>
+            Testar Integração
+          </button>
+          <button class="btn-test" onclick="testMockService()">
+            <i class="fas fa-vial"></i>
+            Testar Mock Service
+          </button>
+          <button class="btn-test" onclick="testQRCode()">
+            <i class="fas fa-qrcode"></i>
+            Testar QR Code
+          </button>
+        </div>
+      </div>
+      
+      <div class="output-panel">
+        <h3>📝 Saída do Console</h3>
+        <div id="output"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="main.js"></script>
+  <script>
+    // SPA Routing System
+    class Router {
+      constructor() {
+        this.routes = {
+          '': 'home',
+          'home': 'home',
+          'dashboard': 'dashboard',
+          'login': 'login',
+          'signup': 'signup',
+          'scanner': 'scanner',
+          'payment': 'payment',
+          'settings': 'settings',
+          'profile': 'profile',
+          'history': 'history',
+          'help': 'help',
+          'privacy': 'privacy',
+          'plans': 'plans',
+          'allergy-scanner': 'allergy-scanner',
+          'payment-tester': 'payment-tester'
+        };
+        this.init();
+      }
+
+      init() {
+        window.addEventListener('hashchange', () => this.handleRoute());
+        window.addEventListener('load', () => this.handleRoute());
+        
+        // Intercept all link clicks
+        document.addEventListener('click', (e) => {
+          const link = e.target.closest('a');
+          if (link && link.getAttribute('href')?.startsWith('#')) {
+            e.preventDefault();
+            const hash = link.getAttribute('href').substring(1);
+            this.navigate(hash);
+          }
+        });
+      }
+
+      handleRoute() {
+        const hash = window.location.hash.substring(1);
+        const page = this.routes[hash] || 'home';
+        this.showPage(page);
+      }
+
+      navigate(page) {
+        window.location.hash = page;
+      }
+
+      showPage(pageId) {
+        // Hide all pages
+        document.querySelectorAll('.page-section').forEach(section => {
+          section.classList.remove('active');
+        });
+
+        // Show target page
+        const targetPage = document.getElementById(`page-${pageId}`);
+        if (targetPage) {
+          targetPage.classList.add('active');
+          
+          // Scroll to top
+          window.scrollTo(0, 0);
+        }
+
+        // Update navigation active states
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${pageId}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    }
+
+    // Global navigation function
+    function navigateTo(page) {
+      window.location.hash = page;
+    }
+
+    // Initialize router
+    const router = new Router();
+
+    // Show loading page initially, then redirect to home
+    setTimeout(() => {
+      if (!window.location.hash) {
+        navigateTo('home');
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
