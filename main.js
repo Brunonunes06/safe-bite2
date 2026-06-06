@@ -574,7 +574,7 @@ class AuthMonitor {
           {
             text: 'Fazer Login',
             icon: 'sign-in-alt',
-            onClick: 'window.location.href = "login.html"'
+            onClick: 'window.location.hash = "login"'
           }
         ]
       });
@@ -658,7 +658,7 @@ class AuthMonitor {
         const loginPrompt = element.querySelector('.login-prompt');
         if (loginPrompt) {
           loginPrompt.addEventListener('click', () => {
-            window.location.href = 'login.html';
+            window.location.hash = 'login';
           });
         }
       }
@@ -694,9 +694,9 @@ class AuthMonitor {
     this.notifyAuthChange();
     
     // Redirecionar se não estiver na página de login
-    if (!window.location.pathname.includes('login.html')) {
+    if (window.location.hash !== '#login') {
       setTimeout(() => {
-        window.location.href = 'login.html';
+        window.location.hash = 'login';
       }, 1000);
     }
   }
@@ -1044,9 +1044,9 @@ class LoginSystem {
 
     if (token && user) {
       // Usuário já está logado, redirecionar para dashboard
-      if (window.location.pathname.includes('login.html') || 
-          window.location.pathname.includes('index.html')) {
-        safeRedirect('dashboard.html');
+      if (window.location.hash === '#login' || 
+          window.location.hash === '' || window.location.hash === '#home') {
+        window.location.hash = 'dashboard';
       }
     }
   }
@@ -1166,7 +1166,7 @@ class LoginSystem {
         // Redirecionar
         setTimeout(() => {
           const redirectUrl = this.getRedirectUrl();
-          safeRedirect(redirectUrl);
+          window.location.hash = redirectUrl.startsWith('#') ? redirectUrl : '#' + redirectUrl;
         }, 1500);
       } else {
         throw new Error(result.message || 'Erro no login');
@@ -1246,7 +1246,7 @@ class LoginSystem {
 
         setTimeout(() => {
           const redirectUrl = this.getRedirectUrl();
-          safeRedirect(redirectUrl);
+          window.location.hash = redirectUrl.startsWith('#') ? redirectUrl : '#' + redirectUrl;
         }, 1500);
       } else {
         throw new Error(result.message || 'Erro no login Google');
@@ -1393,8 +1393,8 @@ class LoginSystem {
       return savedUrl;
     }
 
-    // Sempre redirecionar para index.html após login
-    return 'index.html';
+    // Sempre redirecionar para home após login
+    return '#home';
   }
 
   logout() {
@@ -1404,7 +1404,7 @@ class LoginSystem {
     localStorage.removeItem('nutriScanRemember');
 
     // Redirecionar para login
-    safeRedirect('login.html');
+    window.location.hash = 'login';
   }
 
   // Verificar se usuário está autenticado
@@ -1445,7 +1445,7 @@ function handleForgotPassword(event) {
 function handleSignup(event) {
   event.preventDefault();
   // Redirecionar para página de cadastro ou mostrar modal
-  safeRedirect('signup.html');
+  window.location.hash = 'signup';
 }
 
 // Inicializar sistema
@@ -2909,7 +2909,7 @@ class KeyboardShortcutsManager {
       if (typeof simulateUploadAndScan === 'function') {
         simulateUploadAndScan();
       } else {
-        window.location.href = 'index.html#como-funciona';
+        window.location.hash = 'como-funciona';
       }
     });
     
@@ -3370,7 +3370,7 @@ class UpgradePopupManager {
 
   goToPayment() {
     this.closePopup();
-    safeRedirect('payment.html');
+    window.location.hash = 'payment';
   }
 
   startFreeTrial() {
@@ -3751,7 +3751,7 @@ class LoginManager {
         localStorage.setItem('nutriScanUser', JSON.stringify(data.user));
         
         document.querySelector('.login-modal-overlay')?.remove();
-        safeRedirect('index.html');
+        window.location.hash = 'home';
       } else {
         throw new Error(data.message || 'Erro no login');
       }
@@ -4790,110 +4790,81 @@ class FileChecker {
   }
 
   init() {
-    // Lista de arquivos que devem existir
-    this.requiredFiles = [
-      'index.html'
-    ];
-
-    // Verifica os arquivos primeiro e só depois configura interceptores de
-    // redirecionamento para evitar redirecionamentos prematuros enquanto a
-    // lista de arquivos disponíveis ainda está sendo carregada.
-    this.checkFiles().then(() => {
-      this.setupGlobalRedirect();
-    });
-  }
-
-  async checkFiles() {
-    console.log('🔍 Verificando arquivos necessários...');
-    
-    for (const file of this.requiredFiles) {
-      try {
-        const response = await fetch(file, { method: 'HEAD' });
-        if (response.ok) {
-          this.availableFiles.add(file);
-          console.log(`✅ ${file} - Disponível`);
-        } else {
-          console.warn(`❌ ${file} - Não encontrado (${response.status})`);
-        }
-      } catch (error) {
-        console.warn(`❌ ${file} - Erro na verificação:`, error);
-      }
-    }
-
-    console.log('📁 Arquivos disponíveis:', Array.from(this.availableFiles));
+    // SPA - Single Page Application, não verifica arquivos
+    // Configura redirecionamento seguro baseado em hash
+    this.setupGlobalRedirect();
   }
 
   setupGlobalRedirect() {
-    // Criar função segura de redirecionamento sem tentar redefinir window.location
-    // que é um objeto built-in do navegador
-    
+    // Criar função segura de redirecionamento para SPA
     window.safeRedirect = (url) => {
-      // Se for URL relativa, verificar se o arquivo existe
-      if (url.startsWith('./') || url.endsWith('.html')) {
-        const fileName = url.split('/').pop();
-        
-        if (!this.availableFiles.has(fileName)) {
-          console.error(`❌ Tentativa de redirecionar para arquivo inexistente: ${fileName}`);
-          console.log(`📂 Arquivos disponíveis:`, Array.from(this.availableFiles));
-          
-          // Redirecionar para página segura
-          if (this.availableFiles.has('index.html')) {
-            console.log('🔄 Redirecionando para index.html');
-            window.location.href = 'index.html';
-            return;
-          }
-        }
+      // Converter URLs de arquivo para hash routing
+      if (url.endsWith('.html')) {
+        const pageMap = {
+          'index.html': '#home',
+          'login.html': '#login',
+          'signup.html': '#signup',
+          'dashboard.html': '#dashboard',
+          'payment.html': '#payment'
+        };
+        const hash = pageMap[url] || '#home';
+        console.log(`🔄 Convertendo ${url} para ${hash}`);
+        window.location.hash = hash;
+        return;
+      }
+      
+      // Se já for hash, usar diretamente
+      if (url.startsWith('#')) {
+        window.location.hash = url;
+        return;
       }
       
       console.log(`✅ Redirecionando para: ${url}`);
       window.location.href = url;
     };
 
-    // Interceptar cliques em links para validar antes de redirecionar
+    // Interceptar cliques em links para converter .html para hash
     document.addEventListener('click', (event) => {
       const target = event.target.closest('a[href]');
       if (target) {
         const href = target.getAttribute('href');
         
-        // Validar redirecionamentos para .html
-        if (href && (href.endsWith('.html') || href.startsWith('./'))) {
-          const fileName = href.split('/').pop();
-          
-          if (fileName.endsWith('.html') && !this.availableFiles.has(fileName)) {
-            event.preventDefault();
-            console.error(`❌ Link bloqueado - arquivo não encontrado: ${fileName}`);
-            console.log(`📂 Arquivos disponíveis:`, Array.from(this.availableFiles));
-            
-            // Redirecionar para home
-            window.location.hash = 'home';
-          }
+        // Converter links .html para hash routing
+        if (href && href.endsWith('.html')) {
+          event.preventDefault();
+          const pageMap = {
+            'index.html': '#home',
+            'login.html': '#login',
+            'signup.html': '#signup',
+            'dashboard.html': '#dashboard',
+            'payment.html': '#payment'
+          };
+          const hash = pageMap[href] || '#home';
+          console.log(`🔄 Convertendo link ${href} para ${hash}`);
+          window.location.hash = hash;
         }
       }
     }, true);
 
-    console.log('✅ Sistema de redirecionamento seguro ativado');
+    console.log('✅ Sistema de redirecionamento SPA ativado');
   }
 
-  // Verificar se arquivo específico existe
-  fileExists(fileName) {
-    return this.availableFiles.has(fileName);
+  // Verificar se hash específico existe (sempre true em SPA)
+  hashExists(hash) {
+    return true;
   }
 
-  // Obter lista de arquivos disponíveis
-  getAvailableFiles() {
-    return Array.from(this.availableFiles);
+  // Obter lista de hashes disponíveis
+  getAvailableHashes() {
+    return ['#home', '#login', '#signup', '#dashboard', '#scanner', '#payment', '#settings', '#profile', '#history', '#plans', '#allergy-scanner', '#help'];
   }
 
-  // Redirecionamento seguro
-  safeRedirectTo(page) {
-    if (this.availableFiles.has(page)) {
-      window.location.href = page;
-    } else {
-      console.error(`❌ Página ${page} não está disponível`);
-      if (this.availableFiles.has('index.html')) {
-        window.location.href = 'index.html';
-      }
+  // Redirecionamento seguro baseado em hash
+  safeRedirectTo(hash) {
+    if (!hash.startsWith('#')) {
+      hash = '#' + hash;
     }
+    window.location.hash = hash;
   }
 }
 
@@ -4910,16 +4881,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.safeRedirect = (url) => fileChecker.safeRedirectTo(url);
   }
   if (!window.safeLogin) {
-    window.safeLogin = () => window.safeRedirect('login.html');
+    window.safeLogin = () => { window.location.hash = 'login'; };
   }
   if (!window.safeSignup) {
-    window.safeSignup = () => window.safeRedirect('signup.html');
+    window.safeSignup = () => { window.location.hash = 'signup'; };
   }
   if (!window.safeDashboard) {
-    window.safeDashboard = () => window.safeRedirect('dashboard.html');
+    window.safeDashboard = () => { window.location.hash = 'dashboard'; };
   }
   if (!window.safeIndex) {
-    window.safeIndex = () => window.safeRedirect('index.html');
+    window.safeIndex = () => { window.location.hash = 'home'; };
   }
   
   console.log('🛡️ FileChecker inicializado');
@@ -5050,7 +5021,7 @@ class SettingsButtonsManager {
       setTimeout(() => {
         localStorage.removeItem('nutriScanToken');
         localStorage.removeItem('nutriScanUser');
-            safeRedirect('index.html');
+            window.location.hash = 'home';
       }, 500);
     }
   }
@@ -6045,7 +6016,7 @@ const mercadoPagoPixService = new MercadoPagoPixIntegration();
 /**
  * payment-integration.js
  * Camada de integração e fallback automático para payment manager
- * Conecta payment.html -> payment-manager.js -> payment-brazil.js
+ * Conecta #payment -> payment-manager
  * Com fallback para payment-mock.js quando servidor está offline
  */
 
@@ -7326,7 +7297,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           // Fallback se o popup não estiver disponível
           console.log('Popup não disponível, redirecionando...');
-          safeRedirect('payment.html');
+          window.location.hash = 'payment';
         }
       });
     }
@@ -7720,7 +7691,7 @@ function showLoginRequiredWarning() {
         <button onclick="this.closest('div').parentElement.remove()" style="padding: 0.8rem 1.5rem; background: var(--medium-gray); color: var(--text-dark); border: none; border-radius: 8px; cursor: pointer;">
           Cancelar
         </button>
-        <button onclick="safeRedirect('login.html')" style="padding: 0.8rem 1.5rem; background: var(--gradient-primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+        <button onclick="window.location.hash='login'" style="padding: 0.8rem 1.5rem; background: var(--gradient-primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
           Fazer Login
         </button>
       </div>
@@ -8400,8 +8371,8 @@ function handleHeroStartFree() {
     return;
   }
   
-  // Usuário logado, redirecionar para dashboard
-  safeRedirect('dashboard.html');
+  // Usuário logado, redirecionar para dashboard (SPA routing)
+  window.location.hash = 'dashboard';
 }
 
 // Exportar funções para uso global
