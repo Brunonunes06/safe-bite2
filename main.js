@@ -8385,3 +8385,91 @@ window.NutriScanCorrections = {
 
 // Disponibilizar função globalmente
 window.handleHeroStartFree = handleHeroStartFree;
+
+   // SPA Routing System
+    class Router {
+      constructor() {
+        this.routes = {
+          '': 'home',
+          'home': 'home',
+          'dashboard': 'dashboard',
+          'login': 'login',
+          'signup': 'signup',
+          'scanner': 'scanner',
+          'payment': 'payment',
+          'settings': 'settings',
+          'profile': 'profile',
+          'history': 'history',
+          'help': 'help',
+          'privacy': 'privacy',
+          'plans': 'plans',
+          'allergy-scanner': 'allergy-scanner',
+          'payment-tester': 'payment-tester'
+        };
+        this.init();
+      }
+
+      init() {
+        window.addEventListener('hashchange', () => this.handleRoute());
+        window.addEventListener('load', () => this.handleRoute());
+        
+        // Intercept all link clicks
+        document.addEventListener('click', (e) => {
+          const link = e.target.closest('a');
+          if (link && link.getAttribute('href')?.startsWith('#')) {
+            e.preventDefault();
+            const hash = link.getAttribute('href').substring(1);
+            this.navigate(hash);
+          }
+        });
+      }
+
+      handleRoute() {
+        const hash = window.location.hash.substring(1);
+        const page = this.routes[hash] || 'home';
+        this.showPage(page);
+      }
+
+      navigate(page) {
+        window.location.hash = page;
+      }
+
+      showPage(pageId) {
+        // Hide all pages
+        document.querySelectorAll('.page-section').forEach(section => {
+          section.classList.remove('active');
+        });
+
+        // Show target page
+        const targetPage = document.getElementById(`page-${pageId}`);
+        if (targetPage) {
+          targetPage.classList.add('active');
+          
+          // Scroll to top
+          window.scrollTo(0, 0);
+        }
+
+        // Update navigation active states
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${pageId}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    }
+
+    // Global navigation function
+    function navigateTo(page) {
+      window.location.hash = page;
+    }
+
+    // Initialize router
+    const router = new Router();
+
+    // Show loading page initially, then redirect to home
+    setTimeout(() => {
+      if (!window.location.hash) {
+        navigateTo('home');
+      }
+    }, 1000);
