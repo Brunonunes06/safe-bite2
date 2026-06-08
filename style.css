@@ -1842,7 +1842,7 @@ body.dark-mode .notification {
 }
 
 .logo {
-  font-size: 4rem;
+  font-size: 2rem;
   color: #2ecc71;
   text-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
   animation: pulse 2s ease-in-out infinite;
