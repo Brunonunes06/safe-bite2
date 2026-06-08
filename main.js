@@ -64,7 +64,7 @@ class NutriScanAPI {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Erro na requisição');
@@ -74,7 +74,7 @@ class NutriScanAPI {
     } catch (error) {
       console.error('Erro na API:', error);
       console.log('Servidor não disponível, usando modo simulado');
-      
+
       // Fallback para modo simulado quando servidor não está disponível
       return this.getSimulatedResponse(endpoint, options);
     }
@@ -120,7 +120,7 @@ class NutriScanAPI {
 
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, config);
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Erro no upload');
@@ -237,31 +237,31 @@ const APIUtils = {
   // Tratamento de erros
   handleError(error, customMessage = null) {
     console.error('Erro da API:', error);
-    
+
     if (customMessage) {
       return customMessage;
     }
-    
+
     if (error.message.includes('Failed to fetch')) {
       return 'Erro de conexão. Verifique se o servidor está rodando.';
     }
-    
+
     if (error.message.includes('401')) {
       return 'Sessão expirada. Faça login novamente.';
     }
-    
+
     if (error.message.includes('403')) {
       return 'Acesso negado.';
     }
-    
+
     if (error.message.includes('404')) {
       return 'Recurso não encontrado.';
     }
-    
+
     if (error.message.includes('429')) {
       return 'Muitas requisições. Tente novamente mais tarde.';
     }
-    
+
     return error.message || 'Ocorreu um erro. Tente novamente.';
   },
 
@@ -303,12 +303,12 @@ const APIUtils = {
   // Método para fornecer respostas simuladas quando servidor não está disponível
   getSimulatedResponse(endpoint, options = {}) {
     console.log('Gerando resposta simulada para:', endpoint);
-    
+
     // Simular delay de rede
     return new Promise((resolve) => {
       setTimeout(() => {
         const user = JSON.parse(localStorage.getItem('nutriScanUser') || '{}');
-        
+
         switch (endpoint) {
           case '/auth/google':
             resolve({
@@ -323,7 +323,7 @@ const APIUtils = {
               token: 'simulated-token-' + Date.now()
             });
             break;
-            
+
           case '/auth/login':
             resolve({
               success: true,
@@ -337,7 +337,7 @@ const APIUtils = {
               token: 'simulated-token-' + Date.now()
             });
             break;
-            
+
           case '/auth/register':
             resolve({
               success: true,
@@ -351,7 +351,7 @@ const APIUtils = {
               token: 'simulated-token-' + Date.now()
             });
             break;
-            
+
           case '/user/profile':
             resolve({
               success: true,
@@ -364,7 +364,7 @@ const APIUtils = {
               }
             });
             break;
-            
+
           case '/user/update':
             resolve({
               success: true,
@@ -374,14 +374,14 @@ const APIUtils = {
               }
             });
             break;
-            
+
           case '/scans':
             resolve({
               success: true,
               scans: JSON.parse(localStorage.getItem('nutriScanScans') || '[]')
             });
             break;
-            
+
           case '/scans/save':
             const scans = JSON.parse(localStorage.getItem('nutriScanScans') || '[]');
             const newScan = {
@@ -396,7 +396,7 @@ const APIUtils = {
               scan: newScan
             });
             break;
-            
+
           default:
             resolve({
               success: true,
@@ -419,25 +419,25 @@ class AuthMonitor {
     this.sessionTimeout = 30 * 60 * 1000; // 30 minutos
     this.checkFrequency = 5000; // 5 segundos
     this.listeners = new Map();
-    
+
     this.init();
   }
 
   init() {
     console.log('🔐 Iniciando sistema de monitoramento de autenticação');
-    
+
     // Verificar status inicial
     this.checkAuthStatus();
-    
+
     // Iniciar verificação periódica
     this.startPeriodicCheck();
-    
+
     // Configurar listeners de eventos
     this.setupEventListeners();
-    
+
     // Configurar listener de storage
     this.setupStorageListener();
-    
+
     // Configurar listener de visibilidade da página
     this.setupVisibilityListener();
   }
@@ -447,18 +447,18 @@ class AuthMonitor {
     const token = localStorage.getItem('nutriScanToken');
     const user = localStorage.getItem('nutriScanUser');
     const wasLoggedIn = this.isLoggedIn;
-    
+
     this.isLoggedIn = !!(token && user);
     this.currentUser = user ? JSON.parse(user) : null;
-    
+
     // Se o status mudou, notificar
     if (wasLoggedIn !== this.isLoggedIn) {
       this.notifyAuthChange();
     }
-    
+
     // Atualizar UI imediatamente
     this.updateAuthUI();
-    
+
     return this.isLoggedIn;
   }
 
@@ -467,29 +467,29 @@ class AuthMonitor {
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
     }
-    
+
     this.checkInterval = setInterval(() => {
       this.checkAuthStatus();
       this.checkSessionTimeout();
     }, this.checkFrequency);
-    
-    console.log(`⏰ Verificação contínua iniciada (${this.checkFrequency/1000}s)`);
+
+    console.log(`⏰ Verificação contínua iniciada (${this.checkFrequency / 1000}s)`);
   }
 
   // Configurar listeners de eventos
   setupEventListeners() {
     // Monitorar atividade do usuário
     const events = [
-      'mousedown', 'mousemove', 'keypress', 'scroll', 
+      'mousedown', 'mousemove', 'keypress', 'scroll',
       'touchstart', 'click', 'keydown', 'keyup'
     ];
-    
+
     events.forEach(event => {
       document.addEventListener(event, () => {
         this.updateLastActivity();
       }, { passive: true });
     });
-    
+
     console.log('👆 Listeners de atividade configurados');
   }
 
@@ -503,7 +503,7 @@ class AuthMonitor {
         }, 100);
       }
     });
-    
+
     console.log('📦 Listener de storage configurado');
   }
 
@@ -515,7 +515,7 @@ class AuthMonitor {
         this.checkAuthStatus();
       }
     });
-    
+
     console.log('👁️ Listener de visibilidade configurado');
   }
 
@@ -529,7 +529,7 @@ class AuthMonitor {
   checkSessionTimeout() {
     const now = Date.now();
     const timeSinceActivity = now - this.lastActivity;
-    
+
     if (timeSinceActivity > this.sessionTimeout && this.isLoggedIn) {
       console.log('⏰ Sessão expirada por inatividade');
       this.logout('Sessão expirada por inatividade');
@@ -540,9 +540,9 @@ class AuthMonitor {
   notifyAuthChange() {
     const status = this.isLoggedIn;
     const user = this.currentUser;
-    
+
     console.log(`🔔 Status de autenticação mudou: ${status ? 'LOGADO' : 'DESLOGADO'}`);
-    
+
     // Disparar eventos para listeners
     this.listeners.forEach((callback, event) => {
       try {
@@ -551,10 +551,10 @@ class AuthMonitor {
         console.error('Erro no listener de autenticação:', error);
       }
     });
-    
+
     // Mostrar notificação visual
     this.showAuthNotification(status);
-    
+
     // Atualizar indicadores visuais
     this.updateAuthIndicators(status);
   }
@@ -601,7 +601,7 @@ class AuthMonitor {
         dashboardLink.innerHTML = '<i class="fas fa-lock"></i> Dashboard';
       }
     }
-    
+
     // Atualizar elementos de status
     const statusElements = document.querySelectorAll('.auth-status');
     statusElements.forEach(element => {
@@ -614,12 +614,12 @@ class AuthMonitor {
   updatePlanStatus() {
     const planElements = document.querySelectorAll('.plan-status');
     const user = this.currentUser;
-    
+
     if (!planElements.length || !user) return;
-    
+
     const planName = user.subscription?.plan || 'Free';
     const planStatus = user.subscription?.status || 'active';
-    
+
     planElements.forEach(element => {
       element.innerHTML = `
         <span class="plan-name">${planName}</span>
@@ -631,15 +631,15 @@ class AuthMonitor {
   // Atualizar interface do usuário
   updateUserInterface() {
     const user = this.currentUser;
-    
+
     // Atualizar informações do usuário na interface
     const userElements = document.querySelectorAll('.user-info');
     userElements.forEach(element => {
       if (user) {
         element.innerHTML = `
           <div class="user-avatar">
-            ${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : 
-              '<i class="fas fa-user"></i>'}
+            ${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` :
+            '<i class="fas fa-user"></i>'}
           </div>
           <div class="user-details">
             <div class="user-name">${user.name}</div>
@@ -653,7 +653,7 @@ class AuthMonitor {
             <span>Faça login para continuar</span>
           </div>
         `;
-        
+
         // Adicionar evento de clique
         const loginPrompt = element.querySelector('.login-prompt');
         if (loginPrompt) {
@@ -680,19 +680,19 @@ class AuthMonitor {
   // Logout
   logout(reason = 'Logout manual') {
     console.log(`🚪 Logout: ${reason}`);
-    
+
     // Limpar dados de autenticação
     localStorage.removeItem('nutriScanToken');
     localStorage.removeItem('nutriScanUser');
     localStorage.removeItem('lastActivity');
-    
+
     // Atualizar status
     this.isLoggedIn = false;
     this.currentUser = null;
-    
+
     // Notificar mudança
     this.notifyAuthChange();
-    
+
     // Redirecionar se não estiver na página de login
     if (window.location.hash !== '#login') {
       setTimeout(() => {
@@ -743,10 +743,10 @@ let authMonitor;
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
   authMonitor = new AuthMonitor();
-  
+
   // Tornar globalmente acessível
   window.authMonitor = authMonitor;
-  
+
   console.log('✅ Sistema de monitoramento de autenticação carregado');
 });
 
@@ -765,19 +765,19 @@ class DarkModeManager {
 
   init() {
     console.log('🌙 Iniciando sistema de dark mode');
-    
+
     // Carregar preferências salvas
     this.loadPreferences();
-    
+
     // Detectar preferência do sistema
     this.detectSystemPreference();
-    
+
     // Aplicar tema inicial
     this.applyTheme(this.getEffectiveTheme());
-    
+
     // Configurar listeners
     this.setupEventListeners();
-    
+
     // Adicionar toggle de tema
     // this.addThemeToggle();
   }
@@ -798,7 +798,7 @@ class DarkModeManager {
     if (window.matchMedia) {
       const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
       this.systemPreference = darkModeQuery.matches ? 'dark' : 'light';
-      
+
       // Ouvir mudanças na preferência do sistema
       darkModeQuery.addEventListener('change', (e) => {
         this.systemPreference = e.matches ? 'dark' : 'light';
@@ -818,29 +818,29 @@ class DarkModeManager {
   // Aplicar tema
   applyTheme(theme) {
     this.isDarkMode = theme === 'dark';
-    
+
     // Atualizar CSS variables
     this.updateCSSVariables(theme);
-    
+
     // Atualizar atributos HTML
     document.documentElement.setAttribute('data-theme', theme);
-    
+
     // Atualizar classes
     document.body.classList.toggle('dark-mode', this.isDarkMode);
-    
+
     // Atualizar toggle
     this.updateThemeToggle();
-    
+
     // Disparar evento de mudança de tema
     this.dispatchThemeChange(theme);
-    
+
     console.log(`🎨 Tema aplicado: ${theme}`);
   }
 
   // Atualizar variáveis CSS
   updateCSSVariables(theme) {
     const root = document.documentElement;
-    
+
     if (theme === 'dark') {
       root.style.setProperty('--bg-primary', '#1a1a1a');
       root.style.setProperty('--bg-secondary', '#2d2d2d');
@@ -880,15 +880,15 @@ class DarkModeManager {
     document.addEventListener('themechange', (e) => {
       this.applyTheme(e.detail.theme);
     });
-    
+
     // Atalho de teclado para alternar tema (Ctrl/Cmd + Shift + D)
     document.addEventListener('keydown', (e) => {
-      if (e.shiftKey && e.key === 'D') {
+      if (e.ctrlKey && e.key === 'D') {
         e.preventDefault();
         this.toggleTheme();
       }
     });
-    
+
     console.log('⌨️ Atalhos de tema configurados');
   }
 
@@ -901,13 +901,13 @@ class DarkModeManager {
   //       <i class="fas fa-${this.isDarkMode ? 'sun' : 'moon'}"></i>
   //     </button>
   //   `;
-    
+
   //   // Adicionar ao header
   //   const header = document.querySelector('.header-content');
   //   if (header) {
   //     header.appendChild(toggle);
   //   }
-    
+
   //   // Configurar evento de clique
   //   const toggleBtn = document.getElementById('themeToggleBtn');
   //   if (toggleBtn) {
@@ -923,8 +923,8 @@ class DarkModeManager {
       if (icon) {
         icon.className = `fas fa-${this.isDarkMode ? 'sun' : 'moon'}`;
       }
-      toggleBtn.title = this.isDarkMode ? 
-        'Ativar modo claro (Ctrl+Shift+D)' : 
+      toggleBtn.title = this.isDarkMode ?
+        'Ativar modo claro (Ctrl+Shift+D)' :
         'Ativar modo escuro (Ctrl+Shift+D)';
     }
   }
@@ -982,10 +982,10 @@ let darkModeManager;
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
   darkModeManager = new DarkModeManager();
-  
+
   // Tornar globalmente acessível
   window.darkModeManager = darkModeManager;
-  
+
   console.log('✅ Sistema de dark mode carregado');
 });
 
@@ -1044,8 +1044,8 @@ class LoginSystem {
 
     if (token && user) {
       // Usuário já está logado, redirecionar para dashboard
-      if (window.location.hash === '#login' || 
-          window.location.hash === '' || window.location.hash === '#home') {
+      if (window.location.hash === '#login' ||
+        window.location.hash === '' || window.location.hash === '#home') {
         window.location.hash = 'dashboard';
       }
     }
@@ -1053,7 +1053,7 @@ class LoginSystem {
 
   async handleLogin(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const email = formData.get('email');
     const password = formData.get('password');
@@ -1076,11 +1076,11 @@ class LoginSystem {
       } catch (apiError) {
         // Se falhar a conexão com o servidor, usar modo simulado
         console.log('Servidor não disponível, usando modo simulado para login');
-        
+
         // Verificar se existe usuário cadastrado no localStorage
         const registeredUsers = JSON.parse(localStorage.getItem('nutriScanRegisteredUsers') || '[]');
         const foundUser = registeredUsers.find(u => u.email === email);
-        
+
         if (foundUser && foundUser.password === password) {
           result = {
             success: true,
@@ -1134,7 +1134,7 @@ class LoginSystem {
           throw new Error('Email ou senha inválidos. Verifique seus dados ou crie uma conta.');
         }
       }
-      
+
       if (result.success) {
         // Salvar dados do usuário
         localStorage.setItem('nutriScanToken', result.token);
@@ -1186,7 +1186,7 @@ class LoginSystem {
     try {
       // Simular login Google (em produção, usaria Google Sign-In API)
       const googleUser = await this.simulateGoogleLogin();
-      
+
       // Tentar enviar para backend, mas usar modo simulado se falhar
       let result;
       try {
@@ -1308,7 +1308,7 @@ class LoginSystem {
 
   validatePassword(input) {
     const password = input.value;
-    
+
     if (password.length > 0 && password.length < 6) {
       input.style.borderColor = '#e74c3c';
       this.showError('A senha deve ter pelo menos 6 caracteres.');
@@ -1490,11 +1490,11 @@ class SignupSystem {
     // Validação de nome
     const firstName = document.getElementById('firstName');
     const lastName = document.getElementById('lastName');
-    
+
     if (firstName) {
       firstName.addEventListener('blur', () => this.validateName(firstName, 'firstNameError'));
     }
-    
+
     if (lastName) {
       lastName.addEventListener('blur', () => this.validateName(lastName, 'lastNameError'));
     }
@@ -1521,56 +1521,56 @@ class SignupSystem {
   // Limpar TODOS os dados do usuário (para logout ou troca de usuário)
   clearAllUserData() {
     console.log('🗑️ Limpando todos os dados do usuário anterior...');
-    
+
     // Dados de autenticação
     localStorage.removeItem('nutriScanToken');
     localStorage.removeItem('nutriScanUser');
     localStorage.removeItem('nutriScanRemember');
     localStorage.removeItem('lastActivity');
-    
+
     // Dados de scans e histórico
     localStorage.removeItem('nutriScanScans');
     localStorage.removeItem('allergyAnalysisHistory');
     localStorage.removeItem('pendingScans');
-    
+
     // Dados de plano
     localStorage.removeItem('nutriScanPlan');
-    
+
     // Dados do dashboard
     localStorage.removeItem('dashboardStats');
     localStorage.removeItem('dashboardScans');
-    
+
     // Dados sincronizados
     localStorage.removeItem('syncedUser');
-    
+
     // Limpar qualquer outro dado específico do usuário
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       // Remover qualquer chave que pareça ser específica do usuário
       if (key && (
-        key.includes('scan') || 
-        key.includes('allergy') || 
-        key.includes('product') || 
+        key.includes('scan') ||
+        key.includes('allergy') ||
+        key.includes('product') ||
         key.includes('analysis') ||
         key.includes('history')
       )) {
         keysToRemove.push(key);
       }
     }
-    
+
     // Remover as chaves identificadas
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
       console.log(`  ✓ Removido: ${key}`);
     });
-    
+
     console.log('✅ Todos os dados do usuário foram limpos!');
   }
 
   async handleSignup(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const userData = {
       firstName: formData.get('firstName').trim(),
@@ -1594,13 +1594,13 @@ class SignupSystem {
     try {
       // ✅ LIMPAR DADOS DO USUÁRIO ANTERIOR ANTES DO NOVO CADASTRO
       this.clearAllUserData();
-      
+
       // Tentar verificar email e fazer cadastro, mas usar modo simulado se falhar
       let result;
       try {
         // Verificar se email já existe
         const emailCheck = await this.api.post('/auth/check-email', { email: userData.email });
-        
+
         if (emailCheck.exists) {
           throw new Error('Este email já está cadastrado. Faça login ou use outro email.');
         }
@@ -1627,15 +1627,15 @@ class SignupSystem {
       } catch (apiError) {
         // Se falhar a conexão com o servidor, usar modo simulado
         console.log('Servidor não disponível, usando modo simulado para cadastro');
-        
+
         // Verificar usuários já cadastrados no localStorage
         const registeredUsers = JSON.parse(localStorage.getItem('nutriScanRegisteredUsers') || '[]');
-        
+
         // Verificar se email já existe
         if (registeredUsers.find(u => u.email === userData.email) || userData.email === 'demo@nutriscan.com') {
           throw new Error('Este email já está cadastrado. Faça login ou use outro email.');
         }
-        
+
         // Criar novo usuário
         const newUser = {
           id: 'user_' + Date.now(),
@@ -1657,11 +1657,11 @@ class SignupSystem {
           },
           createdAt: new Date()
         };
-        
+
         // Salvar usuário no localStorage
         registeredUsers.push(newUser);
         localStorage.setItem('nutriScanRegisteredUsers', JSON.stringify(registeredUsers));
-        
+
         // Criar resultado para login automático
         result = {
           success: true,
@@ -1716,10 +1716,10 @@ class SignupSystem {
     try {
       // ✅ LIMPAR DADOS DO USUÁRIO ANTERIOR ANTES DO NOVO CADASTRO COM GOOGLE
       this.clearAllUserData();
-      
+
       // Simular cadastro com Google
       const googleUser = await this.simulateGoogleSignup();
-      
+
       // Tentar enviar para backend, mas usar modo simulado se falhar
       let result;
       try {
@@ -1845,7 +1845,7 @@ class SignupSystem {
   validateName(input, errorId) {
     const name = input.value.trim();
     const errorElement = document.getElementById(errorId);
-    
+
     if (name.length > 0 && name.length < 2) {
       input.classList.add('error');
       this.showFieldError(errorId, 'Nome deve ter pelo menos 2 caracteres.');
@@ -1860,7 +1860,7 @@ class SignupSystem {
   validateEmail(input, errorId) {
     const email = input.value.trim();
     const errorElement = document.getElementById(errorId);
-    
+
     if (email.length > 0 && !this.isValidEmail(email)) {
       input.classList.add('error');
       this.showFieldError(errorId, 'Por favor, insira um email válido.');
@@ -1875,7 +1875,7 @@ class SignupSystem {
   validatePassword(input, errorId) {
     const password = input.value;
     const errorElement = document.getElementById(errorId);
-    
+
     if (password.length > 0 && password.length < 6) {
       input.classList.add('error');
       this.showFieldError(errorId, 'A senha deve ter pelo menos 6 caracteres.');
@@ -1891,7 +1891,7 @@ class SignupSystem {
     const password = document.getElementById('password').value;
     const confirmPassword = input.value;
     const errorElement = document.getElementById(errorId);
-    
+
     if (confirmPassword.length > 0 && password !== confirmPassword) {
       input.classList.add('error');
       this.showFieldError(errorId, 'As senhas não coincidem.');
@@ -2130,7 +2130,7 @@ class UserManager {
     });
 
     html += '</table>';
-    
+
     // Adicionar usuário demo
     html += '<h3 style="margin-top: 20px;">Usuário Demo:</h3>';
     html += '<table style="width: 100%; border-collapse: collapse;">';
@@ -2193,14 +2193,14 @@ class UserManager {
       const registeredUsers = JSON.parse(localStorage.getItem('nutriScanRegisteredUsers') || '[]');
       registeredUsers.splice(index, 1);
       localStorage.setItem('nutriScanRegisteredUsers', JSON.stringify(registeredUsers));
-      
+
       // Se era o usuário atual, fazer logout
       const currentUser = JSON.parse(localStorage.getItem('nutriScanUser') || 'null');
       if (currentUser && registeredUsers.findIndex(u => u.email === currentUser.email) === -1) {
         localStorage.removeItem('nutriScanToken');
         localStorage.removeItem('nutriScanUser');
       }
-      
+
       this.displayUsers();
     }
   }
@@ -2209,7 +2209,7 @@ class UserManager {
     // Simular login
     const registeredUsers = JSON.parse(localStorage.getItem('nutriScanRegisteredUsers') || '[]');
     const foundUser = registeredUsers.find(u => u.email === email);
-    
+
     if (foundUser) {
       const result = {
         success: true,
@@ -2226,16 +2226,16 @@ class UserManager {
 
       localStorage.setItem('nutriScanToken', result.token);
       localStorage.setItem('nutriScanUser', JSON.stringify(result.user));
-        localStorage.setItem('lastActivity', Date.now().toString());
+      localStorage.setItem('lastActivity', Date.now().toString());
 
-        // Notificar userSync e authMonitor
-        try {
-          if (window.userSync && typeof window.userSync.updateUser === 'function') window.userSync.updateUser(result.user);
-          if (window.authMonitor && typeof window.authMonitor.checkAuthStatus === 'function') window.authMonitor.checkAuthStatus();
-        } catch (e) {
-          console.warn('Falha ao notificar userSync/authMonitor:', e);
-        }
-      
+      // Notificar userSync e authMonitor
+      try {
+        if (window.userSync && typeof window.userSync.updateUser === 'function') window.userSync.updateUser(result.user);
+        if (window.authMonitor && typeof window.authMonitor.checkAuthStatus === 'function') window.authMonitor.checkAuthStatus();
+      } catch (e) {
+        console.warn('Falha ao notificar userSync/authMonitor:', e);
+      }
+
       alert(`Login realizado como ${foundUser.name}!`);
       window.location.hash = 'dashboard';
     } else {
@@ -2266,7 +2266,7 @@ class UserManager {
 
       localStorage.setItem('nutriScanToken', result.token);
       localStorage.setItem('nutriScanUser', JSON.stringify(result.user));
-      
+
       alert('Login realizado como Usuário Demo!');
       window.location.hash = 'dashboard';
     }
@@ -2292,23 +2292,23 @@ class UserSyncManager {
     this.eventListeners = new Map();
     this.isOnline = navigator.onLine;
     this.lastSyncTime = null;
-    
+
     this.init();
   }
 
   init() {
     // Carregar dados iniciais do usuário
     this.loadUserData();
-    
+
     // Configurar listeners de eventos
     this.setupEventListeners();
-    
+
     // Iniciar sincronização automática
     this.startAutoSync();
-    
+
     // Configurar storage events para sincronização entre abas
     this.setupStorageEvents();
-    
+
     console.log('UserSyncManager inicializado');
   }
 
@@ -2317,7 +2317,7 @@ class UserSyncManager {
     try {
       const userData = localStorage.getItem('nutriScanUser');
       const token = localStorage.getItem('nutriScanToken');
-      
+
       if (userData && token) {
         this.currentUser = JSON.parse(userData);
         this.updateAllUIElements();
@@ -2336,21 +2336,21 @@ class UserSyncManager {
     const userElements = {
       // Nome do usuário
       'userName': this.currentUser.name || 'Usuário',
-      
+
       // Email do usuário
       'userEmail': this.currentUser.email || 'usuario@exemplo.com',
-      
+
       // Avatar (iniciais)
       'userAvatar': this.getInitials(this.currentUser.name),
-      
+
       // Badge de plano
       'userBadge': this.currentUser.plan || 'Free',
-      
+
       // Profile name
       'profileName': this.currentUser.name || 'Usuário',
-      
+
       'profileEmail': this.currentUser.email || 'usuario@exemplo.com',
-      
+
       'profileBadge': this.currentUser.plan || 'Free'
     };
 
@@ -2439,7 +2439,7 @@ class UserSyncManager {
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = (key, value) => {
       originalSetItem.call(localStorage, key, value);
-      
+
       if (key === 'nutriScanUser') {
         this.handleUserUpdate(JSON.parse(value));
       }
@@ -2450,11 +2450,11 @@ class UserSyncManager {
   handleUserUpdate(userData) {
     const oldUser = this.currentUser;
     this.currentUser = userData;
-    
+
     // Atualizar UI apenas se os dados mudaram
     if (!oldUser || JSON.stringify(oldUser) !== JSON.stringify(userData)) {
       this.updateAllUIElements();
-      
+
       // Disparar evento de sincronização
       this.dispatchSyncEvent('userSynced', userData);
     }
@@ -2506,13 +2506,13 @@ class UserSyncManager {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Atualizar dados locais se forem diferentes
         if (JSON.stringify(data.user) !== JSON.stringify(this.currentUser)) {
           localStorage.setItem('nutriScanUser', JSON.stringify(data.user));
           this.handleUserUpdate(data.user);
         }
-        
+
         this.lastSyncTime = new Date();
         console.log('Sincronização com servidor concluída');
       }
@@ -2533,10 +2533,10 @@ class UserSyncManager {
 
     this.currentUser.profileImage = imageData;
     localStorage.setItem('nutriScanUser', JSON.stringify(this.currentUser));
-    
+
     // Atualizar UI imediatamente
     this.updateAvatarImages(imageData);
-    
+
     // Disparar evento
     this.dispatchSyncEvent('profileImageUpdated', imageData);
   }
@@ -2550,9 +2550,9 @@ class UserSyncManager {
         timestamp: new Date()
       }
     });
-    
+
     document.dispatchEvent(event);
-    
+
     // Notificar listeners registrados
     if (this.eventListeners.has(eventType)) {
       this.eventListeners.get(eventType).forEach(callback => {
@@ -2624,222 +2624,94 @@ document.addEventListener('userSync', (e) => {
   console.log('Evento de sincronização:', e.detail.type, e.detail.timestamp);
 });
 
-// Exportar para módulos (se usar)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = UserSyncManager;
+// Atualizar status do tema ao carregar
+this.updateThemeStatus();
+
+// Ouvir mudanças de tema para manter o toggle sincronizado
+document.addEventListener('themechange', () => {
+  this.updateThemeStatus();
+});
+  }
+
+openPopup() {
+  this.overlay.classList.add('active');
+  this.isOpen = true;
+  this.updateThemeStatus();
+  document.body.style.overflow = 'hidden';
 }
-class ActionsPopupManager {
-  constructor() {
-    this.popup = null;
-    this.overlay = null;
-    this.isOpen = false;
-    this.init();
+
+closePopup() {
+  this.overlay.classList.remove('active');
+  this.isOpen = false;
+  document.body.style.overflow = 'auto';
+}
+
+togglePopup() {
+  if (this.isOpen) {
+    this.closePopup();
+  } else {
+    this.openPopup();
   }
+}
 
-  init() {
-    this.createPopup();
-    this.setupEventListeners();
-  }
+updateThemeStatus() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+    (window.darkModeManager && window.darkModeManager.isDarkMode) ||
+    localStorage.getItem('darkModePreference') === 'dark';
+  const themeToggle = document.getElementById('themeToggleSwitch');
+  const themeStatus = document.getElementById('themeStatus');
 
-  createPopup() {
-    const overlay = document.createElement('div');
-    overlay.id = 'actionsPopupOverlay';
-    overlay.className = 'actions-popup-overlay';
-    
-    const popupContent = `
-      <div class="actions-popup-content">
-        <div class="actions-popup-header">
-          <h3>
-            <i class="fas fa-sliders-h"></i>
-            Configurações Rápidas
-          </h3>
-          <button class="actions-popup-close" onclick="actionsPopup.closePopup()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        
-        <div class="actions-popup-body">
-          <div class="action-item" id="themeActionItem">
-            <div class="action-info">
-              <div class="action-icon">
-                <i class="fas fa-moon"></i>
-              </div>
-              <div class="action-label">
-                <h4>Modo Escuro</h4>
-                <p id="themeStatus">Desativado</p>
-              </div>
-            </div>
-            <div class="action-toggle">
-              <button class="toggle-switch" id="themeToggleSwitch" onclick="actionsPopup.toggleTheme(event)"></button>
-            </div>
-          </div>
-
-          <!-- Atalhos de Teclado -->
-          <div class="action-item">
-            <div class="action-info">
-              <div class="action-icon">
-                <i class="fas fa-keyboard"></i>
-              </div>
-              <div class="action-label">
-                <h4>Atalhos de Teclado</h4>
-                <p>Ver lista completa</p>
-              </div>
-            </div>
-            <button class="action-button" onclick="actionsPopup.showKeyboardShortcuts()">
-              <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
-
-          <!-- Notificações -->
-          <div class="action-item">
-            <div class="action-info">
-              <div class="action-icon">
-                <i class="fas fa-bell"></i>
-              </div>
-              <div class="action-label">
-                <h4>Notificações</h4>
-                <p id="notificationStatus">Ativadas</p>
-              </div>
-            </div>
-            <div class="action-toggle">
-              <button class="toggle-switch active" id="notificationToggleSwitch" onclick="actionsPopup.toggleNotifications(event)"></button>
-            </div>
-          </div>
-
-          <!-- Modo Offline -->
-          <div class="action-item">
-            <div class="action-info">
-              <div class="action-icon">
-                <i class="fas fa-wifi"></i>
-              </div>
-              <div class="action-label">
-                <h4>Disponibilidade Offline</h4>
-                <p>Permite uso sem internet</p>
-              </div>
-            </div>
-            <button class="action-button" onclick="actionsPopup.openOfflineSettings()">
-              <i class="fas fa-cog"></i>
-            </button>
-          </div>
-        </div>
-        
-        <div class="actions-popup-footer">
-          <p><strong>Dica:</strong> Use <strong>"?"</strong> para abrir atalhos</p>
-          <small>Ctrl+Shift+D para modo escuro</small>
-        </div>
-      </div>
-    `;
-    
-    overlay.innerHTML = popupContent;
-    document.body.appendChild(overlay);
-    
-    this.overlay = overlay;
-    this.popup = overlay.querySelector('.actions-popup-content');
-  }
-
-  setupEventListeners() {
-    // Fechar popup ao clicar no overlay
-    this.overlay.addEventListener('click', (e) => {
-      if (e.target === this.overlay) {
-        this.closePopup();
-      }
-    });
-
-    // Fechar popup ao pressionar ESC
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isOpen) {
-        this.closePopup();
-      }
-    });
-
-    // Atualizar status do tema ao carregar
-    this.updateThemeStatus();
-
-    // Ouvir mudanças de tema para manter o toggle sincronizado
-    document.addEventListener('themechange', () => {
-      this.updateThemeStatus();
-    });
-  }
-
-  openPopup() {
-    this.overlay.classList.add('active');
-    this.isOpen = true;
-    this.updateThemeStatus();
-    document.body.style.overflow = 'hidden';
-  }
-
-  closePopup() {
-    this.overlay.classList.remove('active');
-    this.isOpen = false;
-    document.body.style.overflow = 'auto';
-  }
-
-  togglePopup() {
-    if (this.isOpen) {
-      this.closePopup();
+  if (themeToggle) {
+    if (isDark) {
+      themeToggle.classList.add('active');
+      themeStatus.textContent = 'Ativado';
     } else {
-      this.openPopup();
+      themeToggle.classList.remove('active');
+      themeStatus.textContent = 'Desativado';
     }
   }
+}
 
-  updateThemeStatus() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
-                   (window.darkModeManager && window.darkModeManager.isDarkMode) ||
-                   localStorage.getItem('darkModePreference') === 'dark';
-    const themeToggle = document.getElementById('themeToggleSwitch');
-    const themeStatus = document.getElementById('themeStatus');
-    
-    if (themeToggle) {
-      if (isDark) {
-        themeToggle.classList.add('active');
-        themeStatus.textContent = 'Ativado';
-      } else {
-        themeToggle.classList.remove('active');
-        themeStatus.textContent = 'Desativado';
-      }
-    }
+toggleTheme(event) {
+  event.stopPropagation();
+
+  if (window.darkModeManager) {
+    window.darkModeManager.toggleTheme();
   }
 
-  toggleTheme(event) {
-    event.stopPropagation();
-    
-    if (window.darkModeManager) {
-      window.darkModeManager.toggleTheme();
-    }
-    
-    setTimeout(() => {
-      this.updateThemeStatus();
-    }, 100);
-  }
+  setTimeout(() => {
+    this.updateThemeStatus();
+  }, 100);
+}
 
-  toggleNotifications(event) {
-    event.stopPropagation();
-    
-    const toggle = event.target;
-    const status = document.getElementById('notificationStatus');
-    
-    toggle.classList.toggle('active');
-    status.textContent = toggle.classList.contains('active') ? 'Ativadas' : 'Desativadas';
-    
-    // Salvar preferência
-    const isEnabled = toggle.classList.contains('active');
-    localStorage.setItem('notificationsEnabled', isEnabled);
-  }
+toggleNotifications(event) {
+  event.stopPropagation();
 
-  showKeyboardShortcuts() {
-    this.closePopup();
-    
-    if (typeof showKeyboardShortcuts === 'function') {
-      showKeyboardShortcuts();
-    }
-  }
+  const toggle = event.target;
+  const status = document.getElementById('notificationStatus');
 
-  openOfflineSettings() {
-    this.closePopup();
-    
-    // Avisar sobre offline
-    alert('Modo offline: Esta funcionalidade estará disponível em breve.');
+  toggle.classList.toggle('active');
+  status.textContent = toggle.classList.contains('active') ? 'Ativadas' : 'Desativadas';
+
+  // Salvar preferência
+  const isEnabled = toggle.classList.contains('active');
+  localStorage.setItem('notificationsEnabled', isEnabled);
+}
+
+showKeyboardShortcuts() {
+  this.closePopup();
+
+  if (typeof showKeyboardShortcuts === 'function') {
+    showKeyboardShortcuts();
   }
+}
+
+openOfflineSettings() {
+  this.closePopup();
+
+  // Avisar sobre offline
+  alert('Modo offline: Esta funcionalidade estará disponível em breve.');
+}
 }
 
 // Inicializar quando DOM carregar
@@ -2881,13 +2753,13 @@ class KeyboardShortcutsManager {
 
   init() {
     console.log('⌨️ Iniciando sistema de atalhos de teclado');
-    
+
     // Configurar atalhos padrão
     this.setupDefaultShortcuts();
-    
+
     // Configurar listener de eventos
     this.setupEventListeners();
-    
+
     // Adicionar botão de ajuda
     // this.addHelpButton();
   }
@@ -2898,13 +2770,13 @@ class KeyboardShortcutsManager {
     this.addShortcut('h', 'home', 'Ir para página inicial', () => {
       window.location.hash = 'home';
     });
-    
+
     this.addShortcut('d', 'theme-shortcut', 'Alternar tema', () => {
       if (window.darkModeManager) {
         darkModeManager.toggleTheme();
       }
     });
-    
+
     this.addShortcut('s', 'scan', 'Iniciar novo scan', () => {
       if (typeof simulateUploadAndScan === 'function') {
         simulateUploadAndScan();
@@ -2912,20 +2784,20 @@ class KeyboardShortcutsManager {
         window.location.hash = 'como-funciona';
       }
     });
-    
+
     // Ações
     this.addShortcut('n', 'new', 'Novo scan', () => {
       if (typeof simulateUploadAndScan === 'function') {
         simulateUploadAndScan();
       }
     });
-    
+
     this.addShortcut('e', 'export', 'Exportar dados', () => {
       if (typeof exportScanData === 'function') {
         exportScanData();
       }
     });
-    
+
     this.addShortcut('f', 'search', 'Focar busca', () => {
       const searchInput = document.getElementById('scanSearch');
       if (searchInput) {
@@ -2933,67 +2805,67 @@ class KeyboardShortcutsManager {
         searchInput.select();
       }
     });
-    
+
     // Interface
     this.addShortcut('t', 'theme', 'Alternar tema', () => {
       if (window.darkModeManager) {
         darkModeManager.toggleTheme();
       }
     });
-    
+
     this.addShortcut('l', 'logout', 'Logout', () => {
       if (window.authMonitor) {
         authMonitor.logout('Logout via atalho de teclado');
       }
     });
-    
+
     // Ajuda
     this.addShortcut('?', 'help', 'Mostrar ajuda', () => {
       this.showHelp();
     });
-    
+
     // Modificadores
-    this.addShortcut(['ctrl', 'shift', 'd'], 'theme', 'Alternar tema (Ctrl+Shift+D)', () => {
+    this.addShortcut(['shift', 'd'], 'theme', 'Alternar tema (Ctrl+Shift+D)', () => {
       if (window.darkModeManager) {
         darkModeManager.toggleTheme();
       }
     });
-    
-    this.addShortcut(['ctrl', 'shift', 's'], 'save', 'Salvar dados', () => {
+
+    this.addShortcut(['shift', 's'], 'save', 'Salvar dados', () => {
       if (typeof saveToLocalStorage === 'function') {
         saveToLocalStorage();
       }
     });
-    
-    this.addShortcut(['ctrl', 'shift', 'r'], 'refresh', 'Recarregar dados', () => {
+
+    this.addShortcut(['shift', 'r'], 'refresh', 'Recarregar dados', () => {
       if (window.authMonitor) {
         authMonitor.forceCheck();
       }
     });
-    
-    this.addShortcut(['ctrl', 'shift', 'e'], 'export', 'Exportar dados', () => {
+
+    this.addShortcut(['shift', 'e'], 'export', 'Exportar dados', () => {
       if (typeof exportScanData === 'function') {
         exportScanData();
       }
     });
-    
+
     // Navegação no dashboard
     this.addShortcut('left', 'previous', 'Página anterior', () => {
       if (typeof previousPage === 'function') {
         previousPage();
       }
     });
-    
+
     this.addShortcut('right', 'next', 'Próxima página', () => {
       if (typeof nextPage === 'function') {
         nextPage();
       }
     });
-    
+
     this.addShortcut('escape', 'close', 'Fechar modal', () => {
       this.closeAllModals();
     });
-    
+
     console.log(`📋 ${this.shortcuts.size} atalhos configurados`);
   }
 
@@ -3006,7 +2878,7 @@ class KeyboardShortcutsManager {
       action,
       enabled: true
     };
-    
+
     this.shortcuts.set(id, shortcut);
   }
 
@@ -3014,20 +2886,20 @@ class KeyboardShortcutsManager {
   setupEventListeners() {
     document.addEventListener('keydown', (e) => {
       if (!this.isEnabled) return;
-      
+
       // Ignorar atalhos em campos de input
       if (this.isInputElement(e.target)) {
         return;
       }
-      
+
       // Verificar cada atalho
       this.shortcuts.forEach((shortcut, id) => {
         if (this.matchesShortcut(e, shortcut)) {
           e.preventDefault();
           e.stopPropagation();
-          
+
           console.log(`⌨️ Atalho acionado: ${id}`);
-          
+
           try {
             shortcut.action();
           } catch (error) {
@@ -3036,26 +2908,26 @@ class KeyboardShortcutsManager {
         }
       });
     });
-    
+
     console.log('🎧 Listener de atalhos configurado');
   }
 
   // Verificar se atalho corresponde
   matchesShortcut(event, shortcut) {
     if (!shortcut.enabled) return false;
-    
+
     const keys = [];
     if (event.ctrlKey) keys.push('ctrl');
     if (event.shiftKey) keys.push('shift');
     if (event.altKey) keys.push('alt');
     if (event.metaKey) keys.push('meta');
-    
+
     // Adicionar tecla principal
     const mainKey = event.key.toLowerCase();
     if (mainKey !== 'control' && mainKey !== 'shift' && mainKey !== 'alt' && mainKey !== 'meta') {
       keys.push(mainKey);
     }
-    
+
     // Verificar se combinação corresponde
     return this.arraysEqual(keys.sort(), shortcut.keys.sort());
   }
@@ -3073,7 +2945,7 @@ class KeyboardShortcutsManager {
   isInputElement(element) {
     const inputTypes = ['input', 'textarea', 'select'];
     const contentEditable = element.contentEditable === 'true';
-    
+
     return inputTypes.includes(element.tagName.toLowerCase()) || contentEditable;
   }
 
@@ -3089,12 +2961,12 @@ class KeyboardShortcutsManager {
     });
   }
 
-   // Mostrar modal de ajuda
+  // Mostrar modal de ajuda
   showHelp() {
     if (this.helpModal) {
       this.helpModal.remove();
     }
-    
+
     const modal = document.createElement('div');
     modal.className = 'keyboard-help-modal';
     modal.innerHTML = `
@@ -3122,10 +2994,10 @@ class KeyboardShortcutsManager {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
     this.helpModal = modal;
-    
+
     // Focar no modal
     setTimeout(() => {
       const closeBtn = modal.querySelector('.help-close');
@@ -3164,7 +3036,7 @@ class KeyboardShortcutsManager {
         { keys: '?', desc: 'Mostrar ajuda' }
       ]
     };
-    
+
     let html = '';
     for (const [title, shortcuts] of Object.entries(sections)) {
       html += `
@@ -3183,7 +3055,7 @@ class KeyboardShortcutsManager {
         </div>
       `;
     }
-    
+
     return html;
   }
 
@@ -3192,7 +3064,7 @@ class KeyboardShortcutsManager {
     if (typeof keys === 'string') {
       return `<kbd>${keys}</kbd>`;
     }
-    
+
     return keys.map(key => {
       if (key.includes('+')) {
         return key.split('+').map(k => `<kbd>${k}</kbd>`).join(' + ');
@@ -3237,10 +3109,10 @@ let keyboardShortcuts;
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
   keyboardShortcuts = new KeyboardShortcutsManager();
-  
+
   // Tornar globalmente acessível
   window.keyboardShortcuts = keyboardShortcuts;
-  
+
   console.log('✅ Sistema de atalhos de teclado carregado');
 });
 
@@ -3331,7 +3203,7 @@ class UpgradePopupManager {
   showPopup() {
     this.popup.style.display = 'flex';
     document.body.style.overflow = 'hidden'; // Prevenir scroll
-    
+
     // Verificar plano do usuário e ajustar botões
     this.adjustButtonsForUserPlan();
   }
@@ -3340,7 +3212,7 @@ class UpgradePopupManager {
     const user = loginSystem?.getCurrentUser();
     const btnFreeTrial = document.getElementById('btnFreeTrial');
     const popupActions = document.getElementById('popupActions');
-    
+
     if (!user) {
       // Usuário não logado - mostrar botão "Começar Grátis" com login Google
       if (btnFreeTrial) {
@@ -3377,7 +3249,7 @@ class UpgradePopupManager {
     this.closePopup();
     // Verificar se usuário já está logado
     const token = localStorage.getItem('nutriScanToken');
-    
+
     if (token) {
       // Usuário já logado, redirecionar para dashboard
       window.location.hash = 'dashboard';
@@ -3455,7 +3327,7 @@ class UpgradePopupManager {
     `;
 
     document.body.appendChild(loginModal);
-    
+
     // Adicionar estilos se não existirem
     if (!document.querySelector('#loginModalStyles')) {
       this.addLoginModalStyles();
@@ -3619,7 +3491,7 @@ class UpgradePopupManager {
         }
       </style>
     `;
-    
+
     document.head.insertAdjacentHTML('beforeend', styles);
   }
 }
@@ -3655,13 +3527,13 @@ class LoginManager {
     try {
       // Simulação de login com Google
       // Em produção, usaria Google Sign-In API
-      
+
       // Mostrar loading
       this.showLoading('Entrando com Google...');
-      
+
       // Simular delay de autenticação
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Criar usuário simulado do Google
       const googleUser = {
         email: 'usuario@gmail.com',
@@ -3669,16 +3541,16 @@ class LoginManager {
         picture: 'https://lh3.googleusercontent.com/a/default-user',
         id: 'google_user_id'
       };
-      
+
       // Registrar ou fazer login
       await this.registerOrLoginGoogleUser(googleUser);
-      
+
       // Fechar modal
       document.querySelector('.login-modal-overlay')?.remove();
-      
+
       // Redirecionar
       window.location.hash = 'dashboard';
-      
+
     } catch (error) {
       console.error('Erro no login Google:', error);
       this.showError('Erro ao fazer login com Google');
@@ -3702,21 +3574,21 @@ class LoginManager {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         // Salvar token e usuário
         localStorage.setItem('nutriScanToken', data.token);
         localStorage.setItem('nutriScanUser', JSON.stringify(data.user));
         localStorage.setItem('lastActivity', Date.now().toString());
 
-          // Notificar userSync/authMonitor
-          try {
-            if (window.userSync && typeof window.userSync.updateUser === 'function') window.userSync.updateUser(data.user);
-            if (window.authMonitor && typeof window.authMonitor.checkAuthStatus === 'function') window.authMonitor.checkAuthStatus();
-          } catch (e) {
-            console.warn('Falha ao notificar userSync/authMonitor após upgrade:', e);
-          }
-        
+        // Notificar userSync/authMonitor
+        try {
+          if (window.userSync && typeof window.userSync.updateUser === 'function') window.userSync.updateUser(data.user);
+          if (window.authMonitor && typeof window.authMonitor.checkAuthStatus === 'function') window.authMonitor.checkAuthStatus();
+        } catch (e) {
+          console.warn('Falha ao notificar userSync/authMonitor após upgrade:', e);
+        }
+
         this.showSuccess('Login realizado com sucesso!');
       } else {
         throw new Error(data.message || 'Erro no login');
@@ -3729,13 +3601,13 @@ class LoginManager {
 
   async signInWithEmail(event) {
     event.preventDefault();
-    
+
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    
+
     try {
       this.showLoading('Fazendo login...');
-      
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -3745,11 +3617,11 @@ class LoginManager {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         localStorage.setItem('nutriScanToken', data.token);
         localStorage.setItem('nutriScanUser', JSON.stringify(data.user));
-        
+
         document.querySelector('.login-modal-overlay')?.remove();
         window.location.hash = 'home';
       } else {
@@ -3826,7 +3698,7 @@ class ContactSystem {
   init() {
     this.form = document.getElementById('contactForm');
     this.submitButton = document.querySelector('.btn-submit');
-    
+
     if (this.form) {
       this.setupEventListeners();
       this.loadSavedData();
@@ -3865,7 +3737,7 @@ class ContactSystem {
 
   async handleSubmit() {
     const formData = this.getFormData();
-    
+
     if (!this.validateForm(formData)) {
       return;
     }
@@ -3875,11 +3747,11 @@ class ContactSystem {
 
     try {
       const response = await this.api.post('/contact', formData);
-      
+
       if (response.success) {
         this.showSuccess(response.message);
         this.resetForm();
-        
+
         // Mostrar informações de debug em desenvolvimento
         if (response.debug && window.location.hostname === 'localhost') {
           console.log('Debug info:', response.debug);
@@ -3963,7 +3835,7 @@ class ContactSystem {
   showFieldError(fieldId, message) {
     const field = document.getElementById(fieldId);
     const existingError = field.parentNode.querySelector('.field-error');
-    
+
     if (existingError) {
       existingError.remove();
     }
@@ -4008,7 +3880,7 @@ class ContactSystem {
 
   showSuccess(message) {
     this.hideMessages();
-    
+
     const successElement = document.createElement('div');
     successElement.className = 'contact-success';
     successElement.innerHTML = `
@@ -4058,7 +3930,7 @@ class ContactSystem {
 
   showError(message) {
     this.hideMessages();
-    
+
     const errorElement = document.createElement('div');
     errorElement.className = 'contact-error';
     errorElement.innerHTML = `
@@ -4104,7 +3976,7 @@ class ContactSystem {
       timestamp: Date.now(),
       url: window.location.href
     };
-    
+
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(saveData));
     } catch (error) {
@@ -4118,7 +3990,7 @@ class ContactSystem {
       if (!savedData) return;
 
       const data = JSON.parse(savedData);
-      
+
       // Verificar se os dados são recentes (máximo 24 horas)
       const maxAge = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
       if (Date.now() - data.timestamp > maxAge) {
@@ -4224,371 +4096,371 @@ document.addEventListener('DOMContentLoaded', () => {
 window.ContactSystem = ContactSystem;
 // Allergy Scanner System with AI Analysis
 class AllergyScanner {
-    constructor() {
-        this.currentImage = null;
-        this.analysisResults = [];
-        this.allergyDatabase = this.initializeAllergyDatabase();
-        this.initializeEventListeners();
-        this.populateAllergyTable();
-    }
+  constructor() {
+    this.currentImage = null;
+    this.analysisResults = [];
+    this.allergyDatabase = this.initializeAllergyDatabase();
+    this.initializeEventListeners();
+    this.populateAllergyTable();
+  }
 
-    // Initialize comprehensive allergy database
-    initializeAllergyDatabase() {
-        return {
-            // Common allergens with detailed information
-            allergens: [
-                {
-                    name: "Amendoim",
-                    sources: "Manteiga de amendoim, óleo de amendoim, doces, snacks, molhos asiáticos",
-                    symptoms: "Urticária, inchaço, dificuldade respiratória, anafilaxia",
-                    severity: "grave",
-                    keywords: ["amendoim", "peanut", "arachis", "óleo de amendoim"]
-                },
-                {
-                    name: "Leite",
-                    sources: "Leite, queijo, iogurte, manteiga, sorvete, produtos lácteos",
-                    symptoms: "Dor abdominal, diarreia, vômito, eczema, asma",
-                    severity: "moderada",
-                    keywords: ["leite", "milk", "laticínio", "queijo", "iogurte"]
-                },
-                {
-                    name: "Ovos",
-                    sources: "Ovos, maionese, bolos, pães, massas, vacinas",
-                    symptoms: "Urticária, inchaço, problemas digestivos, anafilaxia",
-                    severity: "moderada",
-                    keywords: ["ovo", "egg", "gema", "clara"]
-                },
-                {
-                    name: "Trigo",
-                    sources: "Pão, massas, bolos, biscoitos, cerveja, molhos",
-                    symptoms: "Dor abdominal, inchaço, diarreia, fadiga",
-                    severity: "leve",
-                    keywords: ["trigo", "wheat", "glúten", "pão", "massa"]
-                },
-                {
-                    name: "Soja",
-                    sources: "Tofu, óleo de soja, molho shoyu, proteína vegetal, legumes",
-                    symptoms: "Urticária, dor abdominal, dificuldade respiratória",
-                    severity: "moderada",
-                    keywords: ["soja", "soy", "tofu", "shoyu"]
-                },
-                {
-                    name: "Frutos do Mar",
-                    sources: "Camarão, lagosta, caranguejo, mexilhão, ostras",
-                    symptoms: "Urticária, inchaço, dificuldade respiratória, anafilaxia",
-                    severity: "grave",
-                    keywords: ["camarão", "lagosta", "caranguejo", "mexilhão", "frutos do mar"]
-                },
-                {
-                    name: "Nozes",
-                    sources: "Amêndoas, castanhas, nozes, avelãs, pistaches",
-                    symptoms: "Urticária, inchaço, problemas digestivos, anafilaxia",
-                    severity: "grave",
-                    keywords: ["amêndoa", "castanha", "noz", "avelã", "pistache"]
-                },
-                {
-                    name: "Milho",
-                    sources: "Milho, xarope de milho, amido de milho, fubá, pipoca",
-                    symptoms: "Urticária, dor abdominal, vômito, diarreia",
-                    severity: "leve",
-                    keywords: ["milho", "corn", "xarope", "fubá"]
-                },
-                {
-                    name: "Sésamo",
-                    sources: "Gergelim, tahine, pão sírio, óleo de gergelim",
-                    symptoms: "Urticária, inchaço, dificuldade respiratória, anafilaxia",
-                    severity: "grave",
-                    keywords: ["sésamo", "gergelim", "tahine"]
-                },
-                {
-                    name: "Mostarda",
-                    sources: "Mostarda, molhos, condimentos, conservas",
-                    symptoms: "Urticária, inchaço, problemas digestivos",
-                    severity: "moderada",
-                    keywords: ["mostarda", "mustard", "condimento"]
-                },
-                {
-                    name: "Lentilhas",
-                    sources: "Lentilhas, feijões, grão-de-bico, ervilhas",
-                    symptoms: "Dor abdominal, inchaço, problemas digestivos",
-                    severity: "leve",
-                    keywords: ["lentilha", "feijão", "grão-de-bico", "ervilha"]
-                },
-                {
-                    name: "Citrinos",
-                    sources: "Laranja, limão, lima, grapefruit, mandarina",
-                    symptoms: "Urticária, inchaço dos lábios, problemas digestivos",
-                    severity: "leve",
-                    keywords: ["laranja", "limão", "lima", "citrus"]
-                }
-            ]
-        };
-    }
-
-    // Initialize event listeners
-    initializeEventListeners() {
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-
-        // Click to upload
-        uploadArea.addEventListener('click', () => fileInput.click());
-
-        // File input change
-        fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-
-        // Drag and drop
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                this.handleFile(files[0]);
-            }
-        });
-
-        // Analyze button
-        analyzeBtn.addEventListener('click', () => this.analyzeImage());
-    }
-
-    // Handle file selection
-    handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (file) {
-            this.handleFile(file);
+  // Initialize comprehensive allergy database
+  initializeAllergyDatabase() {
+    return {
+      // Common allergens with detailed information
+      allergens: [
+        {
+          name: "Amendoim",
+          sources: "Manteiga de amendoim, óleo de amendoim, doces, snacks, molhos asiáticos",
+          symptoms: "Urticária, inchaço, dificuldade respiratória, anafilaxia",
+          severity: "grave",
+          keywords: ["amendoim", "peanut", "arachis", "óleo de amendoim"]
+        },
+        {
+          name: "Leite",
+          sources: "Leite, queijo, iogurte, manteiga, sorvete, produtos lácteos",
+          symptoms: "Dor abdominal, diarreia, vômito, eczema, asma",
+          severity: "moderada",
+          keywords: ["leite", "milk", "laticínio", "queijo", "iogurte"]
+        },
+        {
+          name: "Ovos",
+          sources: "Ovos, maionese, bolos, pães, massas, vacinas",
+          symptoms: "Urticária, inchaço, problemas digestivos, anafilaxia",
+          severity: "moderada",
+          keywords: ["ovo", "egg", "gema", "clara"]
+        },
+        {
+          name: "Trigo",
+          sources: "Pão, massas, bolos, biscoitos, cerveja, molhos",
+          symptoms: "Dor abdominal, inchaço, diarreia, fadiga",
+          severity: "leve",
+          keywords: ["trigo", "wheat", "glúten", "pão", "massa"]
+        },
+        {
+          name: "Soja",
+          sources: "Tofu, óleo de soja, molho shoyu, proteína vegetal, legumes",
+          symptoms: "Urticária, dor abdominal, dificuldade respiratória",
+          severity: "moderada",
+          keywords: ["soja", "soy", "tofu", "shoyu"]
+        },
+        {
+          name: "Frutos do Mar",
+          sources: "Camarão, lagosta, caranguejo, mexilhão, ostras",
+          symptoms: "Urticária, inchaço, dificuldade respiratória, anafilaxia",
+          severity: "grave",
+          keywords: ["camarão", "lagosta", "caranguejo", "mexilhão", "frutos do mar"]
+        },
+        {
+          name: "Nozes",
+          sources: "Amêndoas, castanhas, nozes, avelãs, pistaches",
+          symptoms: "Urticária, inchaço, problemas digestivos, anafilaxia",
+          severity: "grave",
+          keywords: ["amêndoa", "castanha", "noz", "avelã", "pistache"]
+        },
+        {
+          name: "Milho",
+          sources: "Milho, xarope de milho, amido de milho, fubá, pipoca",
+          symptoms: "Urticária, dor abdominal, vômito, diarreia",
+          severity: "leve",
+          keywords: ["milho", "corn", "xarope", "fubá"]
+        },
+        {
+          name: "Sésamo",
+          sources: "Gergelim, tahine, pão sírio, óleo de gergelim",
+          symptoms: "Urticária, inchaço, dificuldade respiratória, anafilaxia",
+          severity: "grave",
+          keywords: ["sésamo", "gergelim", "tahine"]
+        },
+        {
+          name: "Mostarda",
+          sources: "Mostarda, molhos, condimentos, conservas",
+          symptoms: "Urticária, inchaço, problemas digestivos",
+          severity: "moderada",
+          keywords: ["mostarda", "mustard", "condimento"]
+        },
+        {
+          name: "Lentilhas",
+          sources: "Lentilhas, feijões, grão-de-bico, ervilhas",
+          symptoms: "Dor abdominal, inchaço, problemas digestivos",
+          severity: "leve",
+          keywords: ["lentilha", "feijão", "grão-de-bico", "ervilha"]
+        },
+        {
+          name: "Citrinos",
+          sources: "Laranja, limão, lima, grapefruit, mandarina",
+          symptoms: "Urticária, inchaço dos lábios, problemas digestivos",
+          severity: "leve",
+          keywords: ["laranja", "limão", "lima", "citrus"]
         }
+      ]
+    };
+  }
+
+  // Initialize event listeners
+  initializeEventListeners() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+
+    // Click to upload
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    // File input change
+    fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        this.handleFile(files[0]);
+      }
+    });
+
+    // Analyze button
+    analyzeBtn.addEventListener('click', () => this.analyzeImage());
+  }
+
+  // Handle file selection
+  handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+      this.handleFile(file);
+    }
+  }
+
+  // Handle file processing
+  handleFile(file) {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.showError('Por favor, selecione um arquivo de imagem válido.');
+      return;
     }
 
-    // Handle file processing
-    handleFile(file) {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            this.showError('Por favor, selecione um arquivo de imagem válido.');
-            return;
-        }
-
-        // Validate file size (10MB max)
-        if (file.size > 10 * 1024 * 1024) {
-            this.showError('O arquivo é muito grande. Por favor, selecione uma imagem menor que 10MB.');
-            return;
-        }
-
-        // Read and display image
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            this.displayImage(e.target.result);
-            this.currentImage = e.target.result;
-        };
-        reader.readAsDataURL(file);
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      this.showError('O arquivo é muito grande. Por favor, selecione uma imagem menor que 10MB.');
+      return;
     }
 
-    // Display uploaded image
-    displayImage(imageSrc) {
-        const previewArea = document.getElementById('previewArea');
-        const previewImage = document.getElementById('previewImage');
-        
-        previewImage.src = imageSrc;
-        previewArea.style.display = 'block';
-        
-        // Clear previous results
-        this.clearResults();
-    }
+    // Read and display image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.displayImage(e.target.result);
+      this.currentImage = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Display uploaded image
+  displayImage(imageSrc) {
+    const previewArea = document.getElementById('previewArea');
+    const previewImage = document.getElementById('previewImage');
+
+    previewImage.src = imageSrc;
+    previewArea.style.display = 'block';
 
     // Clear previous results
-    clearResults() {
-        const resultsContainer = document.getElementById('resultsContainer');
-        resultsContainer.innerHTML = `
+    this.clearResults();
+  }
+
+  // Clear previous results
+  clearResults() {
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-inbox empty-icon"></i>
                 <p>Nenhuma análise realizada ainda</p>
                 <p>Clique em "Analisar com IA" para começar</p>
             </div>
         `;
+  }
+
+  // Analyze image with AI
+  async analyzeImage() {
+    if (!this.currentImage) {
+      this.showError('Por favor, selecione uma imagem primeiro.');
+      return;
     }
 
-    // Analyze image with AI
-    async analyzeImage() {
-        if (!this.currentImage) {
-            this.showError('Por favor, selecione uma imagem primeiro.');
-            return;
+    // Verificar limite do plano antes de analisar
+    try {
+      const planData = JSON.parse(localStorage.getItem('nutriScanPlan') || 'null');
+      const plan = planData ? planData.plan : 'free';
+      if (plan === 'free') {
+        const history = JSON.parse(localStorage.getItem('allergyAnalysisHistory') || '[]');
+        // contar scans no mês atual
+        const now = new Date();
+        const monthCount = history.filter(h => {
+          const d = new Date(h.timestamp || h.date || h.id);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }).length;
+
+        if (monthCount >= 10) {
+          this.showError('Limite de 10 scans/mês atingido para o plano gratuito. Faça upgrade para mais scans.');
+          return;
         }
-
-        // Verificar limite do plano antes de analisar
-        try {
-            const planData = JSON.parse(localStorage.getItem('nutriScanPlan') || 'null');
-            const plan = planData ? planData.plan : 'free';
-            if (plan === 'free') {
-                const history = JSON.parse(localStorage.getItem('allergyAnalysisHistory') || '[]');
-                // contar scans no mês atual
-                const now = new Date();
-                const monthCount = history.filter(h => {
-                    const d = new Date(h.timestamp || h.date || h.id);
-                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                }).length;
-
-                if (monthCount >= 10) {
-                    this.showError('Limite de 10 scans/mês atingido para o plano gratuito. Faça upgrade para mais scans.');
-                    return;
-                }
-            }
-        } catch (e) {
-            console.warn('Erro ao verificar plano:', e);
-        }
-
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const originalText = analyzeBtn.innerHTML;
-        
-        // Show loading state
-        analyzeBtn.disabled = true;
-        analyzeBtn.classList.add('loading');
-        analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisando...';
-
-        try {
-            // Simulate AI analysis delay
-            await this.simulateAIAnalysis();
-            
-            // Get analysis results
-            const results = this.performAIAnalysis();
-            
-            // Display results
-            this.displayResults(results);
-            
-            // Save to history
-            this.saveAnalysisToHistory(results);
-            
-        } catch (error) {
-            this.showError('Erro ao analisar a imagem. Por favor, tente novamente.');
-            console.error('Analysis error:', error);
-        } finally {
-            // Reset button
-            analyzeBtn.disabled = false;
-            analyzeBtn.classList.remove('loading');
-            analyzeBtn.innerHTML = originalText;
-        }
+      }
+    } catch (e) {
+      console.warn('Erro ao verificar plano:', e);
     }
 
-    // Simulate AI processing time
-    simulateAIAnalysis() {
-        return new Promise(resolve => setTimeout(resolve, 2000));
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const originalText = analyzeBtn.innerHTML;
+
+    // Show loading state
+    analyzeBtn.disabled = true;
+    analyzeBtn.classList.add('loading');
+    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisando...';
+
+    try {
+      // Simulate AI analysis delay
+      await this.simulateAIAnalysis();
+
+      // Get analysis results
+      const results = this.performAIAnalysis();
+
+      // Display results
+      this.displayResults(results);
+
+      // Save to history
+      this.saveAnalysisToHistory(results);
+
+    } catch (error) {
+      this.showError('Erro ao analisar a imagem. Por favor, tente novamente.');
+      console.error('Analysis error:', error);
+    } finally {
+      // Reset button
+      analyzeBtn.disabled = false;
+      analyzeBtn.classList.remove('loading');
+      analyzeBtn.innerHTML = originalText;
+    }
+  }
+
+  // Simulate AI processing time
+  simulateAIAnalysis() {
+    return new Promise(resolve => setTimeout(resolve, 2000));
+  }
+
+  // Perform AI analysis (simulated)
+  performAIAnalysis() {
+    // Simulate random detection of allergens
+    const detectedAllergens = [];
+    const randomAllergens = this.getRandomAllergens();
+
+    randomAllergens.forEach(allergen => {
+      const confidence = Math.random() * 0.3 + 0.7; // 70-100% confidence
+      detectedAllergens.push({
+        ...allergen,
+        confidence: confidence,
+        detectedAreas: this.generateDetectedAreas()
+      });
+    });
+
+    // Generate overall analysis
+    const overallRisk = this.calculateOverallRisk(detectedAllergens);
+
+    return {
+      timestamp: new Date().toISOString(),
+      overallRisk: overallRisk,
+      detectedAllergens: detectedAllergens,
+      recommendations: this.generateRecommendations(detectedAllergens),
+      imageAnalysis: this.generateImageAnalysis()
+    };
+  }
+
+  // Get random allergens for simulation
+  getRandomAllergens() {
+    const allergens = this.allergyDatabase.allergens;
+    const count = Math.floor(Math.random() * 3) + 1; // 1-3 allergens
+    const shuffled = [...allergens].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  // Generate detected areas (simulated bounding boxes)
+  generateDetectedAreas() {
+    const areas = [];
+    const count = Math.floor(Math.random() * 2) + 1; // 1-2 areas
+
+    for (let i = 0; i < count; i++) {
+      areas.push({
+        x: Math.random() * 80 + 10, // 10-90%
+        y: Math.random() * 80 + 10, // 10-90%
+        width: Math.random() * 20 + 10, // 10-30%
+        height: Math.random() * 20 + 10 // 10-30%
+      });
     }
 
-    // Perform AI analysis (simulated)
-    performAIAnalysis() {
-        // Simulate random detection of allergens
-        const detectedAllergens = [];
-        const randomAllergens = this.getRandomAllergens();
-        
-        randomAllergens.forEach(allergen => {
-            const confidence = Math.random() * 0.3 + 0.7; // 70-100% confidence
-            detectedAllergens.push({
-                ...allergen,
-                confidence: confidence,
-                detectedAreas: this.generateDetectedAreas()
-            });
-        });
+    return areas;
+  }
 
-        // Generate overall analysis
-        const overallRisk = this.calculateOverallRisk(detectedAllergens);
-        
-        return {
-            timestamp: new Date().toISOString(),
-            overallRisk: overallRisk,
-            detectedAllergens: detectedAllergens,
-            recommendations: this.generateRecommendations(detectedAllergens),
-            imageAnalysis: this.generateImageAnalysis()
-        };
+  // Calculate overall risk level
+  calculateOverallRisk(allergens) {
+    if (allergens.length === 0) return 'safe';
+
+    const hasGrave = allergens.some(a => a.severity === 'grave');
+    const hasModerada = allergens.some(a => a.severity === 'moderada');
+
+    if (hasGrave) return 'danger';
+    if (hasModerada) return 'warning';
+    return 'caution';
+  }
+
+  // Generate recommendations based on detected allergens
+  generateRecommendations(allergens) {
+    const recommendations = [];
+
+    if (allergens.length === 0) {
+      recommendations.push("Nenhum alérgeno comum detectado. Produto parece seguro para consumo geral.");
+      return recommendations;
     }
 
-    // Get random allergens for simulation
-    getRandomAllergens() {
-        const allergens = this.allergyDatabase.allergens;
-        const count = Math.floor(Math.random() * 3) + 1; // 1-3 allergens
-        const shuffled = [...allergens].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
+    const graveAllergens = allergens.filter(a => a.severity === 'grave');
+    const moderateAllergens = allergens.filter(a => a.severity === 'moderada');
+
+    if (graveAllergens.length > 0) {
+      recommendations.push("⚠️ **ALERTA MÁXIMO**: Detectados alérgenos de alto risco. Evitar consumo se tiver alergia grave.");
     }
 
-    // Generate detected areas (simulated bounding boxes)
-    generateDetectedAreas() {
-        const areas = [];
-        const count = Math.floor(Math.random() * 2) + 1; // 1-2 areas
-        
-        for (let i = 0; i < count; i++) {
-            areas.push({
-                x: Math.random() * 80 + 10, // 10-90%
-                y: Math.random() * 80 + 10, // 10-90%
-                width: Math.random() * 20 + 10, // 10-30%
-                height: Math.random() * 20 + 10 // 10-30%
-            });
-        }
-        
-        return areas;
+    if (moderateAllergens.length > 0) {
+      recommendations.push("⚠️ **ATENÇÃO**: Detectados alérgenos que podem causar reações moderadas.");
     }
 
-    // Calculate overall risk level
-    calculateOverallRisk(allergens) {
-        if (allergens.length === 0) return 'safe';
-        
-        const hasGrave = allergens.some(a => a.severity === 'grave');
-        const hasModerada = allergens.some(a => a.severity === 'moderada');
-        
-        if (hasGrave) return 'danger';
-        if (hasModerada) return 'warning';
-        return 'caution';
-    }
+    recommendations.push("📋 Verifique sempre o rótulo completo do produto.");
+    recommendations.push("🏥 Em caso de reação alérgica, procure atendimento médico imediatamente.");
+    recommendations.push("💊 Mantenha medicação para alergia sempre por perto se necessário.");
 
-    // Generate recommendations based on detected allergens
-    generateRecommendations(allergens) {
-        const recommendations = [];
-        
-        if (allergens.length === 0) {
-            recommendations.push("Nenhum alérgeno comum detectado. Produto parece seguro para consumo geral.");
-            return recommendations;
-        }
-        
-        const graveAllergens = allergens.filter(a => a.severity === 'grave');
-        const moderateAllergens = allergens.filter(a => a.severity === 'moderada');
-        
-        if (graveAllergens.length > 0) {
-            recommendations.push("⚠️ **ALERTA MÁXIMO**: Detectados alérgenos de alto risco. Evitar consumo se tiver alergia grave.");
-        }
-        
-        if (moderateAllergens.length > 0) {
-            recommendations.push("⚠️ **ATENÇÃO**: Detectados alérgenos que podem causar reações moderadas.");
-        }
-        
-        recommendations.push("📋 Verifique sempre o rótulo completo do produto.");
-        recommendations.push("🏥 Em caso de reação alérgica, procure atendimento médico imediatamente.");
-        recommendations.push("💊 Mantenha medicação para alergia sempre por perto se necessário.");
-        
-        return recommendations;
-    }
+    return recommendations;
+  }
 
-    // Generate image analysis description
-    generateImageAnalysis() {
-        const analyses = [
-            "Imagem analisada mostra produto alimentar processado com embalagem visível.",
-            "Qualidade da imagem permite boa visualização dos ingredientes.",
-            "Detectados possíveis alérgenos baseado em análise de padrões visuais.",
-            "Recomenda-se confirmação com leitura do rótulo nutricional."
-        ];
-        
-        return analyses.join(" ");
-    }
+  // Generate image analysis description
+  generateImageAnalysis() {
+    const analyses = [
+      "Imagem analisada mostra produto alimentar processado com embalagem visível.",
+      "Qualidade da imagem permite boa visualização dos ingredientes.",
+      "Detectados possíveis alérgenos baseado em análise de padrões visuais.",
+      "Recomenda-se confirmação com leitura do rótulo nutricional."
+    ];
 
-    // Display analysis results
-    displayResults(results) {
-        const resultsContainer = document.getElementById('resultsContainer');
-        
-        let html = `
+    return analyses.join(" ");
+  }
+
+  // Display analysis results
+  displayResults(results) {
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    let html = `
             <div class="result-card ${results.overallRisk}">
                 <div class="result-header">
                     <h3 class="result-title">Análise Completa</h3>
@@ -4600,18 +4472,18 @@ class AllergyScanner {
                     ${results.imageAnalysis}
                 </div>
                 <div class="allergen-list">
-                    ${results.detectedAllergens.map(allergen => 
-                        `<span class="allergen-tag ${allergen.severity === 'grave' ? 'danger' : allergen.severity === 'moderada' ? 'warning' : ''}">
+                    ${results.detectedAllergens.map(allergen =>
+      `<span class="allergen-tag ${allergen.severity === 'grave' ? 'danger' : allergen.severity === 'moderada' ? 'warning' : ''}">
                             ${allergen.name} (${Math.round(allergen.confidence * 100)}%)
                         </span>`
-                    ).join('')}
+    ).join('')}
                 </div>
             </div>
         `;
-        
-        // Add detailed allergen information
-        results.detectedAllergens.forEach(allergen => {
-            html += `
+
+    // Add detailed allergen information
+    results.detectedAllergens.forEach(allergen => {
+      html += `
                 <div class="result-card ${allergen.severity === 'grave' ? 'danger' : allergen.severity === 'moderada' ? 'warning' : ''}">
                     <div class="result-header">
                         <h3 class="result-title">${allergen.name}</h3>
@@ -4626,10 +4498,10 @@ class AllergyScanner {
                     </div>
                 </div>
             `;
-        });
-        
-        // Add recommendations
-        html += `
+    });
+
+    // Add recommendations
+    html += `
             <div class="result-card">
                 <div class="result-header">
                     <h3 class="result-title">Recomendações</h3>
@@ -4639,110 +4511,110 @@ class AllergyScanner {
                 </div>
             </div>
         `;
-        
-        resultsContainer.innerHTML = html;
+
+    resultsContainer.innerHTML = html;
+  }
+
+  // Get severity text in Portuguese
+  getSeverityText(severity) {
+    const texts = {
+      'safe': 'Seguro',
+      'caution': 'Cuidado',
+      'warning': 'Atenção',
+      'danger': 'Perigo'
+    };
+    return texts[severity] || 'Desconhecido';
+  }
+
+  // Save analysis to history
+  saveAnalysisToHistory(results) {
+    const history = JSON.parse(localStorage.getItem('allergyAnalysisHistory') || '[]');
+    const analysis = {
+      ...results,
+      id: Date.now(),
+      image: this.currentImage
+    };
+
+    history.unshift(analysis);
+
+    // Keep only last 50 analyses
+    if (history.length > 50) {
+      history.splice(50);
     }
 
-    // Get severity text in Portuguese
-    getSeverityText(severity) {
-        const texts = {
-            'safe': 'Seguro',
-            'caution': 'Cuidado',
-            'warning': 'Atenção',
-            'danger': 'Perigo'
-        };
-        return texts[severity] || 'Desconhecido';
+    localStorage.setItem('allergyAnalysisHistory', JSON.stringify(history));
+
+    // Também adicionar entrada simplificada em nutriScanScans para o dashboard
+    try {
+      const scans = JSON.parse(localStorage.getItem('nutriScanScans') || '[]');
+      const scanEntry = {
+        id: analysis.id,
+        product: 'Imagem analisada',
+        date: analysis.timestamp || new Date().toISOString(),
+        status: (analysis.overallRisk === 'safe' ? 'safe' : (analysis.overallRisk === 'warning' ? 'warning' : 'danger')),
+        confidence: analysis.detectedAllergens && analysis.detectedAllergens[0] ? Math.round(analysis.detectedAllergens[0].confidence * 100) : 90,
+        image: analysis.image || this.currentImage || ''
+      };
+      scans.unshift(scanEntry);
+      // manter 100 scans locais
+      if (scans.length > 100) scans.splice(100);
+      localStorage.setItem('nutriScanScans', JSON.stringify(scans));
+    } catch (e) {
+      console.warn('Erro ao adicionar scan simplificado:', e);
     }
 
-    // Save analysis to history
-    saveAnalysisToHistory(results) {
-        const history = JSON.parse(localStorage.getItem('allergyAnalysisHistory') || '[]');
-        const analysis = {
-            ...results,
-            id: Date.now(),
-            image: this.currentImage
-        };
-        
-        history.unshift(analysis);
-        
-        // Keep only last 50 analyses
-        if (history.length > 50) {
-            history.splice(50);
-        }
-        
-        localStorage.setItem('allergyAnalysisHistory', JSON.stringify(history));
-        
-        // Também adicionar entrada simplificada em nutriScanScans para o dashboard
-        try {
-            const scans = JSON.parse(localStorage.getItem('nutriScanScans') || '[]');
-            const scanEntry = {
-                id: analysis.id,
-                product: 'Imagem analisada',
-                date: analysis.timestamp || new Date().toISOString(),
-                status: (analysis.overallRisk === 'safe' ? 'safe' : (analysis.overallRisk === 'warning' ? 'warning' : 'danger')),
-                confidence: analysis.detectedAllergens && analysis.detectedAllergens[0] ? Math.round(analysis.detectedAllergens[0].confidence * 100) : 90,
-                image: analysis.image || this.currentImage || ''
-            };
-            scans.unshift(scanEntry);
-            // manter 100 scans locais
-            if (scans.length > 100) scans.splice(100);
-            localStorage.setItem('nutriScanScans', JSON.stringify(scans));
-        } catch (e) {
-            console.warn('Erro ao adicionar scan simplificado:', e);
-        }
+    // Notificar o dashboard em tempo real na mesma aba
+    try {
+      // Disparar evento DOM para listeners na página
+      const event = new CustomEvent('scan:completed', { detail: scanEntry });
+      document.dispatchEvent(event);
 
-        // Notificar o dashboard em tempo real na mesma aba
-        try {
-            // Disparar evento DOM para listeners na página
-            const event = new CustomEvent('scan:completed', { detail: scanEntry });
-            document.dispatchEvent(event);
-
-            // Se houver um sincronizador real-time global, chamar o handler diretamente
-            if (window.realtimeSync && typeof window.realtimeSync.handleScanUpdate === 'function') {
-                window.realtimeSync.handleScanUpdate(scanEntry);
-            }
-        } catch (e) {
-            // não bloquear fluxo se notificação falhar
-            console.warn('Erro ao notificar dashboard sobre novo scan:', e);
-        }
-
-        // Atualizar contador de uso do plano no usuário local
-        try {
-            const userStr = localStorage.getItem('nutriScanUser');
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                user.subscription = user.subscription || {};
-                user.subscription.scansUsed = (user.subscription.scansUsed || 0) + 1;
-                localStorage.setItem('nutriScanUser', JSON.stringify(user));
-            }
-        } catch (e) {
-            console.warn('Erro ao atualizar uso do plano do usuário:', e);
-        }
-        
-        // Incluir dados do usuário e notificar histórico (outras abas)
-        try {
-            const userStr = localStorage.getItem('nutriScanUser');
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                analysis.user = { name: user.name || 'Usuário', id: user.id || null };
-            }
-        } catch (e) {
-            // ignore
-        }
-
-        try {
-            localStorage.setItem('allergyAnalysisLast', JSON.stringify(analysis));
-            localStorage.setItem('allergyAnalysisLastUpdate', Date.now().toString());
-        } catch (e) {
-            console.warn('Erro ao sinalizar atualização de histórico:', e);
-        }
+      // Se houver um sincronizador real-time global, chamar o handler diretamente
+      if (window.realtimeSync && typeof window.realtimeSync.handleScanUpdate === 'function') {
+        window.realtimeSync.handleScanUpdate(scanEntry);
+      }
+    } catch (e) {
+      // não bloquear fluxo se notificação falhar
+      console.warn('Erro ao notificar dashboard sobre novo scan:', e);
     }
 
-    // Populate allergy table
-    populateAllergyTable() {
-        const tableBody = document.getElementById('allergyTableBody');
-        
-        const html = this.allergyDatabase.allergens.map(allergen => `
+    // Atualizar contador de uso do plano no usuário local
+    try {
+      const userStr = localStorage.getItem('nutriScanUser');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        user.subscription = user.subscription || {};
+        user.subscription.scansUsed = (user.subscription.scansUsed || 0) + 1;
+        localStorage.setItem('nutriScanUser', JSON.stringify(user));
+      }
+    } catch (e) {
+      console.warn('Erro ao atualizar uso do plano do usuário:', e);
+    }
+
+    // Incluir dados do usuário e notificar histórico (outras abas)
+    try {
+      const userStr = localStorage.getItem('nutriScanUser');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        analysis.user = { name: user.name || 'Usuário', id: user.id || null };
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    try {
+      localStorage.setItem('allergyAnalysisLast', JSON.stringify(analysis));
+      localStorage.setItem('allergyAnalysisLastUpdate', Date.now().toString());
+    } catch (e) {
+      console.warn('Erro ao sinalizar atualização de histórico:', e);
+    }
+  }
+
+  // Populate allergy table
+  populateAllergyTable() {
+    const tableBody = document.getElementById('allergyTableBody');
+
+    const html = this.allergyDatabase.allergens.map(allergen => `
             <tr>
                 <td class="allergy-name">${allergen.name}</td>
                 <td>${allergen.sources}</td>
@@ -4754,14 +4626,14 @@ class AllergyScanner {
                 </td>
             </tr>
         `).join('');
-        
-        tableBody.innerHTML = html;
-    }
 
-    // Show error message
-    showError(message) {
-        const resultsContainer = document.getElementById('resultsContainer');
-        resultsContainer.innerHTML = `
+    tableBody.innerHTML = html;
+  }
+
+  // Show error message
+  showError(message) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.innerHTML = `
             <div class="result-card danger">
                 <div class="result-header">
                     <h3 class="result-title">Erro</h3>
@@ -4771,12 +4643,12 @@ class AllergyScanner {
                 </div>
             </div>
         `;
-    }
+  }
 }
 
 // Initialize the allergy scanner when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new AllergyScanner();
+  new AllergyScanner();
 });
 
 // Nota: `safeRedirect` é centralizado em `api-config.js`.
@@ -4812,13 +4684,13 @@ class FileChecker {
         window.location.hash = hash;
         return;
       }
-      
+
       // Se já for hash, usar diretamente
       if (url.startsWith('#')) {
         window.location.hash = url;
         return;
       }
-      
+
       console.log(`✅ Redirecionando para: ${url}`);
       window.location.href = url;
     };
@@ -4828,7 +4700,7 @@ class FileChecker {
       const target = event.target.closest('a[href]');
       if (target) {
         const href = target.getAttribute('href');
-        
+
         // Converter links .html para hash routing
         if (href && href.endsWith('.html')) {
           event.preventDefault();
@@ -4892,7 +4764,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!window.safeIndex) {
     window.safeIndex = () => { window.location.hash = 'home'; };
   }
-  
+
   console.log('🛡️ FileChecker inicializado');
   console.log('📋 Funções seguras disponíveis: safeRedirect, safeLogin, safeSignup, safeDashboard, safeIndex');
 });
@@ -4910,43 +4782,43 @@ class SettingsButtonsManager {
   /**
    * Inicializa todos os botões com listeners
    */
-//   initializeButtons() {
-//     // Salvar
-//     const saveBtn = document.querySelector('button[onclick="saveSettings()"]');
-//     if (saveBtn) {
-//       saveBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleSaveSettings.bind(this)));
-//     }
+  //   initializeButtons() {
+  //     // Salvar
+  //     const saveBtn = document.querySelector('button[onclick="saveSettings()"]');
+  //     if (saveBtn) {
+  //       saveBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleSaveSettings.bind(this)));
+  //     }
 
-//     // Exportar
-//     const exportBtn = document.querySelector('button[onclick="exportData()"]');
-//     if (exportBtn) {
-//       exportBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleExportData.bind(this)));
-//     }
+  //     // Exportar
+  //     const exportBtn = document.querySelector('button[onclick="exportData()"]');
+  //     if (exportBtn) {
+  //       exportBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleExportData.bind(this)));
+  //     }
 
-//     // Limpar Histórico
-//     const clearBtn = document.querySelector('button[onclick="clearHistory()"]');
-//     if (clearBtn) {
-//       clearBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleClearHistory.bind(this)));
-//     }
+  //     // Limpar Histórico
+  //     const clearBtn = document.querySelector('button[onclick="clearHistory()"]');
+  //     if (clearBtn) {
+  //       clearBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleClearHistory.bind(this)));
+  //     }
 
-//     // Sair
-//     const logoutBtn = document.querySelector('button[onclick="logout()"]');
-//     if (logoutBtn) {
-//       logoutBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleLogout.bind(this)));
-//     }
+  //     // Sair
+  //     const logoutBtn = document.querySelector('button[onclick="logout()"]');
+  //     if (logoutBtn) {
+  //       logoutBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleLogout.bind(this)));
+  //     }
 
-//     // Limpar Cache
-//     const cacheBtn = document.querySelector('button[onclick="clearCache()"]');
-//     if (cacheBtn) {
-//       cacheBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleClearCache.bind(this)));
-//     }
+  //     // Limpar Cache
+  //     const cacheBtn = document.querySelector('button[onclick="clearCache()"]');
+  //     if (cacheBtn) {
+  //       cacheBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleClearCache.bind(this)));
+  //     }
 
-//     // Restaurar Padrão
-//     const resetBtn = document.querySelector('button[onclick="resetSettings()"]');
-//     if (resetBtn) {
-//       resetBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleResetSettings.bind(this)));
-//     }
-//   }
+  //     // Restaurar Padrão
+  //     const resetBtn = document.querySelector('button[onclick="resetSettings()"]');
+  //     if (resetBtn) {
+  //       resetBtn.addEventListener('click', (e) => this.slideOutAction(e, this.handleResetSettings.bind(this)));
+  //     }
+  //   }
 
   /**
    * Animação de deslize para o lado quando o botão é clicado
@@ -4977,10 +4849,10 @@ class SettingsButtonsManager {
    */
   handleSaveSettings() {
     console.log('✅ Salvando configurações...');
-    
+
     // Simular salvamento
     this.showNotification('Configurações salvas com sucesso!', 'success');
-    
+
     // Adicionar efeito visual no botão
     this.addPulseEffect();
   }
@@ -4990,10 +4862,10 @@ class SettingsButtonsManager {
    */
   handleExportData() {
     console.log('📥 Exportando dados...');
-    
+
     // Simular exportação
     this.showNotification('Dados exportados com sucesso!', 'success');
-    
+
     // Adicionar efeito de download
     this.addDownloadEffect();
   }
@@ -5016,12 +4888,12 @@ class SettingsButtonsManager {
     if (confirm('Tem certeza que deseja sair da sua conta?')) {
       console.log('👋 Saindo da conta...');
       this.showNotification('Saindo da conta...', 'warning');
-      
+
       // Simular logout após animação
       setTimeout(() => {
         localStorage.removeItem('nutriScanToken');
         localStorage.removeItem('nutriScanUser');
-            window.location.hash = 'home';
+        window.location.hash = 'home';
       }, 500);
     }
   }
@@ -5042,10 +4914,10 @@ class SettingsButtonsManager {
     if (confirm('Tem certeza que deseja restaurar todas as configurações ao padrão?')) {
       console.log('🔄 Restaurando configurações padrão...');
       this.showNotification('Configurações restauradas ao padrão!', 'warning');
-      
+
       // Limpar localStorage
       localStorage.removeItem('nutriscan_settings');
-      
+
       // Recarregar página
       setTimeout(() => {
         location.reload();
@@ -5187,168 +5059,168 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Real-time Dashboard Sync System
 class RealtimeDashboardSync {
-    constructor() {
-        this.ws = null;
+  constructor() {
+    this.ws = null;
+    this.reconnectAttempts = 0;
+    this.maxReconnectAttempts = 5;
+    this.reconnectDelay = 1000;
+    this.syncInterval = null;
+    this.lastSyncTime = null;
+    this.isOnline = navigator.onLine;
+    this.cache = new Map();
+
+    this.initializeEventListeners();
+    this.startPeriodicSync();
+  }
+
+  // Initialize event listeners
+  initializeEventListeners() {
+    // Network status monitoring
+    window.addEventListener('online', () => {
+      this.isOnline = true;
+      this.handleReconnect();
+    });
+
+    window.addEventListener('offline', () => {
+      this.isOnline = false;
+      this.handleDisconnect();
+    });
+
+    // Page visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && this.isOnline) {
+        this.syncData();
+      }
+    });
+
+    // WebSocket connection events
+    window.addEventListener('beforeunload', () => {
+      this.disconnect();
+    });
+  }
+
+  // Initialize WebSocket connection for real-time updates
+  initializeWebSocket() {
+    if (!this.isOnline) return;
+
+    try {
+      // Simulated WebSocket URL (replace with actual WebSocket server)
+      const wsUrl = `ws://localhost:3000/dashboard-sync`;
+
+      this.ws = new WebSocket(wsUrl);
+
+      this.ws.onopen = () => {
+        console.log('🔌 WebSocket connected');
         this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 5;
-        this.reconnectDelay = 1000;
-        this.syncInterval = null;
-        this.lastSyncTime = null;
-        this.isOnline = navigator.onLine;
-        this.cache = new Map();
-        
-        this.initializeEventListeners();
-        this.startPeriodicSync();
+        this.requestInitialData();
+      };
+
+      this.ws.onmessage = (event) => {
+        this.handleWebSocketMessage(event);
+      };
+
+      this.ws.onclose = () => {
+        console.log('🔌 WebSocket disconnected');
+        this.handleReconnect();
+      };
+
+      this.ws.onerror = (error) => {
+        console.error('🔌 WebSocket error:', error);
+        this.handleReconnect();
+      };
+
+    } catch (error) {
+      console.error('🔌 Failed to initialize WebSocket:', error);
+      this.startPeriodicSync();
     }
+  }
 
-    // Initialize event listeners
-    initializeEventListeners() {
-        // Network status monitoring
-        window.addEventListener('online', () => {
-            this.isOnline = true;
-            this.handleReconnect();
-        });
+  // Handle WebSocket messages
+  handleWebSocketMessage(event) {
+    try {
+      const data = JSON.parse(event.data);
 
-        window.addEventListener('offline', () => {
-            this.isOnline = false;
-            this.handleDisconnect();
-        });
-
-        // Page visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && this.isOnline) {
-                this.syncData();
-            }
-        });
-
-        // WebSocket connection events
-        window.addEventListener('beforeunload', () => {
-            this.disconnect();
-        });
+      switch (data.type) {
+        case 'initial_data':
+          this.updateDashboard(data.payload);
+          break;
+        case 'scan_update':
+          this.handleScanUpdate(data.payload);
+          break;
+        case 'stats_update':
+          this.updateStats(data.payload);
+          break;
+        case 'plan_update':
+          this.updatePlanUsage(data.payload);
+          break;
+        case 'user_activity':
+          this.handleUserActivity(data.payload);
+          break;
+        default:
+          console.log('🔌 Unknown message type:', data.type);
+      }
+    } catch (error) {
+      console.error('🔌 Error parsing WebSocket message:', error);
     }
+  }
 
-    // Initialize WebSocket connection for real-time updates
-    initializeWebSocket() {
-        if (!this.isOnline) return;
+  // Handle scan updates in real-time
+  handleScanUpdate(scanData) {
+    // Update local cache
+    this.cache.set(`scan_${scanData.id}`, scanData);
 
-        try {
-            // Simulated WebSocket URL (replace with actual WebSocket server)
-            const wsUrl = `ws://localhost:3000/dashboard-sync`;
-            
-            this.ws = new WebSocket(wsUrl);
-            
-            this.ws.onopen = () => {
-                console.log('🔌 WebSocket connected');
-                this.reconnectAttempts = 0;
-                this.requestInitialData();
-            };
-
-            this.ws.onmessage = (event) => {
-                this.handleWebSocketMessage(event);
-            };
-
-            this.ws.onclose = () => {
-                console.log('🔌 WebSocket disconnected');
-                this.handleReconnect();
-            };
-
-            this.ws.onerror = (error) => {
-                console.error('🔌 WebSocket error:', error);
-                this.handleReconnect();
-            };
-
-        } catch (error) {
-            console.error('🔌 Failed to initialize WebSocket:', error);
-            this.startPeriodicSync();
-        }
-    }
-
-    // Handle WebSocket messages
-    handleWebSocketMessage(event) {
-        try {
-            const data = JSON.parse(event.data);
-            
-            switch (data.type) {
-                case 'initial_data':
-                    this.updateDashboard(data.payload);
-                    break;
-                case 'scan_update':
-                    this.handleScanUpdate(data.payload);
-                    break;
-                case 'stats_update':
-                    this.updateStats(data.payload);
-                    break;
-                case 'plan_update':
-                    this.updatePlanUsage(data.payload);
-                    break;
-                case 'user_activity':
-                    this.handleUserActivity(data.payload);
-                    break;
-                default:
-                    console.log('🔌 Unknown message type:', data.type);
-            }
-        } catch (error) {
-            console.error('🔌 Error parsing WebSocket message:', error);
-        }
-    }
-
-    // Handle scan updates in real-time
-    handleScanUpdate(scanData) {
-        // Update local cache
-        this.cache.set(`scan_${scanData.id}`, scanData);
-        
-        // Update dashboard counters
-        this.updateScanCounters(scanData);
-        
-        // Show real-time notification
-        this.showRealtimeNotification(scanData);
-        
-        // Update recent scans list
-        this.updateRecentScans(scanData);
-        
-        // Trigger animation
-        this.animateCounter('totalScans');
-    }
-
-    // Update scan counters
-    updateScanCounters(scanData) {
-        const totalScansEl = document.getElementById('totalScans');
-        const safeProductsEl = document.getElementById('safeProducts');
-        const warningsFoundEl = document.getElementById('warningsFound');
-        
-        if (totalScansEl) {
-            const current = parseInt(totalScansEl.textContent) || 0;
-            totalScansEl.textContent = current + 1;
-        }
-        
-        if (scanData.status === 'safe' && safeProductsEl) {
-            const current = parseInt(safeProductsEl.textContent) || 0;
-            safeProductsEl.textContent = current + 1;
-        }
-        
-        if ((scanData.status === 'warning' || scanData.status === 'danger') && warningsFoundEl) {
-            const current = parseInt(warningsFoundEl.textContent) || 0;
-            warningsFoundEl.textContent = current + 1;
-        }
-    }
+    // Update dashboard counters
+    this.updateScanCounters(scanData);
 
     // Show real-time notification
-    showRealtimeNotification(scanData) {
-        const notification = document.createElement('div');
-        notification.className = 'realtime-notification';
-        notification.innerHTML = `
+    this.showRealtimeNotification(scanData);
+
+    // Update recent scans list
+    this.updateRecentScans(scanData);
+
+    // Trigger animation
+    this.animateCounter('totalScans');
+  }
+
+  // Update scan counters
+  updateScanCounters(scanData) {
+    const totalScansEl = document.getElementById('totalScans');
+    const safeProductsEl = document.getElementById('safeProducts');
+    const warningsFoundEl = document.getElementById('warningsFound');
+
+    if (totalScansEl) {
+      const current = parseInt(totalScansEl.textContent) || 0;
+      totalScansEl.textContent = current + 1;
+    }
+
+    if (scanData.status === 'safe' && safeProductsEl) {
+      const current = parseInt(safeProductsEl.textContent) || 0;
+      safeProductsEl.textContent = current + 1;
+    }
+
+    if ((scanData.status === 'warning' || scanData.status === 'danger') && warningsFoundEl) {
+      const current = parseInt(warningsFoundEl.textContent) || 0;
+      warningsFoundEl.textContent = current + 1;
+    }
+  }
+
+  // Show real-time notification
+  showRealtimeNotification(scanData) {
+    const notification = document.createElement('div');
+    notification.className = 'realtime-notification';
+    notification.innerHTML = `
             <div class="notification-content">
                 <i class="fas fa-${scanData.status === 'safe' ? 'check-circle' : 'exclamation-triangle'}"></i>
                 <span>Novo scan: ${scanData.product}</span>
                 <span class="status-${scanData.status}">${this.getStatusText(scanData.status)}</span>
             </div>
         `;
-        
-        // Add notification styles if not exists
-        if (!document.getElementById('realtime-notification-styles')) {
-            const styles = document.createElement('style');
-            styles.id = 'realtime-notification-styles';
-            styles.textContent = `
+
+    // Add notification styles if not exists
+    if (!document.getElementById('realtime-notification-styles')) {
+      const styles = document.createElement('style');
+      styles.id = 'realtime-notification-styles';
+      styles.textContent = `
                 .realtime-notification {
                     position: fixed;
                     top: 20px;
@@ -5387,27 +5259,27 @@ class RealtimeDashboardSync {
                     }
                 }
             `;
-            document.head.appendChild(styles);
-        }
-        
-        document.body.appendChild(notification);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.5s ease';
-            setTimeout(() => notification.remove(), 500);
-        }, 5000);
+      document.head.appendChild(styles);
     }
 
-    // Update recent scans list
-    updateRecentScans(scanData) {
-        const recentScansList = document.getElementById('recentScansList');
-        if (!recentScansList) return;
-        
-        // Create new scan item
-        const scanItem = document.createElement('div');
-        scanItem.className = 'scan-item';
-        scanItem.innerHTML = `
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.5s ease';
+      setTimeout(() => notification.remove(), 500);
+    }, 5000);
+  }
+
+  // Update recent scans list
+  updateRecentScans(scanData) {
+    const recentScansList = document.getElementById('recentScansList');
+    if (!recentScansList) return;
+
+    // Create new scan item
+    const scanItem = document.createElement('div');
+    scanItem.className = 'scan-item';
+    scanItem.innerHTML = `
             <div class="scan-info">
                 <div class="scan-product">${scanData.product}</div>
                 <div class="scan-date">${new Date(scanData.date).toLocaleString('pt-BR')}</div>
@@ -5417,249 +5289,249 @@ class RealtimeDashboardSync {
                 ${this.getStatusText(scanData.status)}
             </div>
         `;
-        
-        // Add to top of list
-        recentScansList.insertBefore(scanItem, recentScansList.firstChild);
-        
-        // Remove last item if more than 5
-        const items = recentScansList.querySelectorAll('.scan-item');
-        if (items.length > 5) {
-            items[items.length - 1].remove();
+
+    // Add to top of list
+    recentScansList.insertBefore(scanItem, recentScansList.firstChild);
+
+    // Remove last item if more than 5
+    const items = recentScansList.querySelectorAll('.scan-item');
+    if (items.length > 5) {
+      items[items.length - 1].remove();
+    }
+
+    // Add animation
+    scanItem.style.animation = 'slideInLeft 0.5s ease';
+  }
+
+  // Get status text
+  getStatusText(status) {
+    const texts = {
+      'safe': 'Seguro',
+      'warning': 'Atenção',
+      'danger': 'Perigo'
+    };
+    return texts[status] || 'Desconhecido';
+  }
+
+  // Get status icon
+  getStatusIcon(status) {
+    const icons = {
+      'safe': 'check-circle',
+      'warning': 'exclamation-triangle',
+      'danger': 'times-circle'
+    };
+    return icons[status] || 'question-circle';
+  }
+
+  // Start periodic sync (fallback when WebSocket is not available)
+  startPeriodicSync() {
+    if (this.syncInterval) {
+      clearInterval(this.syncInterval);
+    }
+
+    this.syncInterval = setInterval(() => {
+      if (this.isOnline && !this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        this.syncData();
+      }
+    }, 5000); // Sync every 5 seconds
+  }
+
+  // Sync data with server
+  async syncData() {
+    if (!this.isOnline) return;
+
+    try {
+      const response = await fetch('/api/dashboard/stats', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}`,
+          'Content-Type': 'application/json'
         }
-        
-        // Add animation
-        scanItem.style.animation = 'slideInLeft 0.5s ease';
-    }
+      });
 
-    // Get status text
-    getStatusText(status) {
-        const texts = {
-            'safe': 'Seguro',
-            'warning': 'Atenção',
-            'danger': 'Perigo'
-        };
-        return texts[status] || 'Desconhecido';
+      if (response.ok) {
+        const data = await response.json();
+        this.updateDashboard(data);
+        this.lastSyncTime = new Date();
+        console.log('🔄 Dashboard synced successfully');
+        // Após buscar estatísticas, tentar enviar alterações locais (análises/exclusões)
+        await this.pushPendingUpdates();
+      }
+    } catch (error) {
+      console.error('🔄 Sync error:', error);
+      // Use cached data if available
+      this.loadFromCache();
     }
+  }
 
-    // Get status icon
-    getStatusIcon(status) {
-        const icons = {
-            'safe': 'check-circle',
-            'warning': 'exclamation-triangle',
-            'danger': 'times-circle'
-        };
-        return icons[status] || 'question-circle';
-    }
+  // Push local pending updates (new analysis or deletions) to server
+  async pushPendingUpdates() {
+    try {
+      // Push last analysis if exists
+      const last = JSON.parse(localStorage.getItem('allergyAnalysisLast') || 'null');
+      const lastUpdate = localStorage.getItem('allergyAnalysisLastUpdate');
+      const pushedMarker = localStorage.getItem('realtime_last_pushed') || '';
 
-    // Start periodic sync (fallback when WebSocket is not available)
-    startPeriodicSync() {
-        if (this.syncInterval) {
-            clearInterval(this.syncInterval);
-        }
-        
-        this.syncInterval = setInterval(() => {
-            if (this.isOnline && !this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                this.syncData();
-            }
-        }, 5000); // Sync every 5 seconds
-    }
-
-    // Sync data with server
-    async syncData() {
-        if (!this.isOnline) return;
-        
+      if (last && lastUpdate && pushedMarker !== String(lastUpdate)) {
+        // POST to server
         try {
-            const response = await fetch('/api/dashboard/stats', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                this.updateDashboard(data);
-                this.lastSyncTime = new Date();
-                console.log('🔄 Dashboard synced successfully');
-                // Após buscar estatísticas, tentar enviar alterações locais (análises/exclusões)
-                await this.pushPendingUpdates();
+          const resp = await fetch('/api/scans', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}` },
+            body: JSON.stringify(last)
+          });
+
+          if (resp.ok) {
+            console.log('🔼 Pushed last analysis to server');
+            localStorage.setItem('realtime_last_pushed', String(lastUpdate));
+            // notify via websocket if connected
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+              this.ws.send(JSON.stringify({ type: 'scan_update', payload: last }));
             }
-        } catch (error) {
-            console.error('🔄 Sync error:', error);
-            // Use cached data if available
-            this.loadFromCache();
-        }
-    }
-
-    // Push local pending updates (new analysis or deletions) to server
-    async pushPendingUpdates() {
-        try {
-            // Push last analysis if exists
-            const last = JSON.parse(localStorage.getItem('allergyAnalysisLast') || 'null');
-            const lastUpdate = localStorage.getItem('allergyAnalysisLastUpdate');
-            const pushedMarker = localStorage.getItem('realtime_last_pushed') || '';
-
-            if (last && lastUpdate && pushedMarker !== String(lastUpdate)) {
-                // POST to server
-                try {
-                    const resp = await fetch('/api/scans', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}` },
-                        body: JSON.stringify(last)
-                    });
-
-                    if (resp.ok) {
-                        console.log('🔼 Pushed last analysis to server');
-                        localStorage.setItem('realtime_last_pushed', String(lastUpdate));
-                        // notify via websocket if connected
-                        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                            this.ws.send(JSON.stringify({ type: 'scan_update', payload: last }));
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Failed to push last analysis:', e);
-                }
-            }
-
-            // Handle deletions
-            const deleted = JSON.parse(localStorage.getItem('allergyAnalysisDeleted') || 'null');
-            const deletedMarker = localStorage.getItem('realtime_last_deleted') || '';
-            if (deleted && deleted.ts && String(deleted.ts) !== deletedMarker) {
-                try {
-                    const resp = await fetch(`/api/scans/${deleted.id}`, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}` }
-                    });
-
-                    if (resp.ok || resp.status === 404) {
-                        console.log('🔽 Pushed deletion to server for', deleted.id);
-                        localStorage.setItem('realtime_last_deleted', String(deleted.ts));
-                        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                            this.ws.send(JSON.stringify({ type: 'scan_delete', payload: { id: deleted.id } }));
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Failed to push deletion:', e);
-                }
-            }
+          }
         } catch (e) {
-            console.warn('pushPendingUpdates error:', e);
+          console.warn('Failed to push last analysis:', e);
         }
-    }
+      }
 
-    // Update dashboard with new data
-    updateDashboard(data) {
-        // Update counters with animation
-        this.updateCounter('totalScans', data.totalScans);
-        this.updateCounter('safeProducts', data.safeProducts);
-        this.updateCounter('warningsFound', data.warningsFound);
-        this.updateCounter('planUsage', `${data.planUsage}/${data.planLimit}`);
-        
-        // Update plan usage progress
-        this.updatePlanProgress(data.planUsage, data.planLimit);
-        
-        // Cache the data
-        this.cache.set('dashboard_data', data);
-    }
+      // Handle deletions
+      const deleted = JSON.parse(localStorage.getItem('allergyAnalysisDeleted') || 'null');
+      const deletedMarker = localStorage.getItem('realtime_last_deleted') || '';
+      if (deleted && deleted.ts && String(deleted.ts) !== deletedMarker) {
+        try {
+          const resp = await fetch(`/api/scans/${deleted.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}` }
+          });
 
-    // Update counter with animation
-    updateCounter(elementId, newValue) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        const oldValue = parseInt(element.textContent) || 0;
-        const targetValue = typeof newValue === 'string' ? newValue : parseInt(newValue);
-        
-        if (oldValue !== targetValue) {
-            this.animateCounter(elementId, oldValue, targetValue);
+          if (resp.ok || resp.status === 404) {
+            console.log('🔽 Pushed deletion to server for', deleted.id);
+            localStorage.setItem('realtime_last_deleted', String(deleted.ts));
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+              this.ws.send(JSON.stringify({ type: 'scan_delete', payload: { id: deleted.id } }));
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to push deletion:', e);
         }
+      }
+    } catch (e) {
+      console.warn('pushPendingUpdates error:', e);
     }
+  }
 
-    // Animate counter change
-    animateCounter(elementId, start, end) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        const duration = 1000;
-        const startTime = performance.now();
-        
-        const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            const current = Math.floor(start + (end - start) * progress);
-            element.textContent = current;
-            
-            // Add pulse effect
-            if (progress === 1) {
-                element.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    element.style.transform = 'scale(1)';
-                }, 200);
-            }
-            
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-        };
-        
-        requestAnimationFrame(animate);
-    }
+  // Update dashboard with new data
+  updateDashboard(data) {
+    // Update counters with animation
+    this.updateCounter('totalScans', data.totalScans);
+    this.updateCounter('safeProducts', data.safeProducts);
+    this.updateCounter('warningsFound', data.warningsFound);
+    this.updateCounter('planUsage', `${data.planUsage}/${data.planLimit}`);
 
     // Update plan usage progress
-    updatePlanProgress(usage, limit) {
-        const progressBar = document.getElementById('planProgressBar');
-        if (!progressBar) return;
-        
-        const percentage = (usage / limit) * 100;
-        progressBar.style.width = `${percentage}%`;
-        
-        // Change color based on usage
-        if (percentage >= 90) {
-            progressBar.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-        } else if (percentage >= 70) {
-            progressBar.style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
-        } else {
-            progressBar.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
-        }
-    }
+    this.updatePlanProgress(data.planUsage, data.planLimit);
 
-    // Handle reconnection
-    handleReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            this.reconnectAttempts++;
-            console.log(`🔄 Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
-            
-            setTimeout(() => {
-                this.initializeWebSocket();
-            }, this.reconnectDelay * this.reconnectAttempts);
-        } else {
-            console.log('🔄 Max reconnection attempts reached, using periodic sync');
-            this.startPeriodicSync();
-        }
-    }
+    // Cache the data
+    this.cache.set('dashboard_data', data);
+  }
 
-    // Handle disconnection
-    handleDisconnect() {
-        if (this.ws) {
-            this.ws.close();
-            this.ws = null;
-        }
-        
-        // Show offline indicator
-        this.showOfflineIndicator();
+  // Update counter with animation
+  updateCounter(elementId, newValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    const oldValue = parseInt(element.textContent) || 0;
+    const targetValue = typeof newValue === 'string' ? newValue : parseInt(newValue);
+
+    if (oldValue !== targetValue) {
+      this.animateCounter(elementId, oldValue, targetValue);
+    }
+  }
+
+  // Animate counter change
+  animateCounter(elementId, start, end) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    const duration = 1000;
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      const current = Math.floor(start + (end - start) * progress);
+      element.textContent = current;
+
+      // Add pulse effect
+      if (progress === 1) {
+        element.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          element.style.transform = 'scale(1)';
+        }, 200);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }
+
+  // Update plan usage progress
+  updatePlanProgress(usage, limit) {
+    const progressBar = document.getElementById('planProgressBar');
+    if (!progressBar) return;
+
+    const percentage = (usage / limit) * 100;
+    progressBar.style.width = `${percentage}%`;
+
+    // Change color based on usage
+    if (percentage >= 90) {
+      progressBar.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+    } else if (percentage >= 70) {
+      progressBar.style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
+    } else {
+      progressBar.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+    }
+  }
+
+  // Handle reconnection
+  handleReconnect() {
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      console.log(`🔄 Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+
+      setTimeout(() => {
+        this.initializeWebSocket();
+      }, this.reconnectDelay * this.reconnectAttempts);
+    } else {
+      console.log('🔄 Max reconnection attempts reached, using periodic sync');
+      this.startPeriodicSync();
+    }
+  }
+
+  // Handle disconnection
+  handleDisconnect() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
     }
 
     // Show offline indicator
-    showOfflineIndicator() {
-        const indicator = document.createElement('div');
-        indicator.id = 'offline-indicator';
-        indicator.innerHTML = `
+    this.showOfflineIndicator();
+  }
+
+  // Show offline indicator
+  showOfflineIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'offline-indicator';
+    indicator.innerHTML = `
             <i class="fas fa-wifi"></i>
             <span>Offline - Modo desconectado</span>
         `;
-        indicator.style.cssText = `
+    indicator.style.cssText = `
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -5673,108 +5545,108 @@ class RealtimeDashboardSync {
             z-index: 1000;
             animation: slideUp 0.5s ease;
         `;
-        
-        document.body.appendChild(indicator);
+
+    document.body.appendChild(indicator);
+  }
+
+  // Hide offline indicator
+  hideOfflineIndicator() {
+    const indicator = document.getElementById('offline-indicator');
+    if (indicator) {
+      indicator.remove();
+    }
+  }
+
+  // Load data from cache
+  loadFromCache() {
+    const cachedData = this.cache.get('dashboard_data');
+    if (cachedData) {
+      this.updateDashboard(cachedData);
+      console.log('📦 Loaded data from cache');
+    }
+  }
+
+  // Request initial data
+  requestInitialData() {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'request_initial_data',
+        userId: localStorage.getItem('nutriScanUser')
+      }));
+    }
+  }
+
+  // Disconnect WebSocket
+  disconnect() {
+    if (this.syncInterval) {
+      clearInterval(this.syncInterval);
     }
 
-    // Hide offline indicator
-    hideOfflineIndicator() {
-        const indicator = document.getElementById('offline-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
     }
+  }
 
-    // Load data from cache
-    loadFromCache() {
-        const cachedData = this.cache.get('dashboard_data');
-        if (cachedData) {
-            this.updateDashboard(cachedData);
-            console.log('📦 Loaded data from cache');
-        }
-    }
-
-    // Request initial data
-    requestInitialData() {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({
-                type: 'request_initial_data',
-                userId: localStorage.getItem('nutriScanUser')
-            }));
-        }
-    }
-
-    // Disconnect WebSocket
-    disconnect() {
-        if (this.syncInterval) {
-            clearInterval(this.syncInterval);
-        }
-        
-        if (this.ws) {
-            this.ws.close();
-            this.ws = null;
-        }
-    }
-
-    // Get connection status
-    getConnectionStatus() {
-        return {
-            isOnline: this.isOnline,
-            websocketConnected: this.ws && this.ws.readyState === WebSocket.OPEN,
-            lastSyncTime: this.lastSyncTime,
-            reconnectAttempts: this.reconnectAttempts
-        };
-    }
+  // Get connection status
+  getConnectionStatus() {
+    return {
+      isOnline: this.isOnline,
+      websocketConnected: this.ws && this.ws.readyState === WebSocket.OPEN,
+      lastSyncTime: this.lastSyncTime,
+      reconnectAttempts: this.reconnectAttempts
+    };
+  }
 }
 
 // Initialize the real-time sync system
 let realtimeSync;
 
 document.addEventListener('DOMContentLoaded', () => {
-    realtimeSync = new RealtimeDashboardSync();
-    
-    // Make it globally accessible
-    window.realtimeSync = realtimeSync;
+  realtimeSync = new RealtimeDashboardSync();
+
+  // Make it globally accessible
+  window.realtimeSync = realtimeSync;
 });
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = RealtimeDashboardSync;
+  module.exports = RealtimeDashboardSync;
 }
 // Sistema de Integração de Sincronização de Usuário
 // Integra o user-sync.js com o sistema principal
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Sistema de sincronização de usuário integrado');
-    
-    // Verificar se há usuário sincronizado
-    const syncedUser = localStorage.getItem('syncedUser');
-    const currentUser = localStorage.getItem('nutriScanUser');
-    
-    if (syncedUser && !currentUser) {
-        // Restaurar usuário sincronizado
-        localStorage.setItem('nutriScanUser', syncedUser);
-        console.log('Usuário restaurado da sincronização');
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('Sistema de sincronização de usuário integrado');
+
+  // Verificar se há usuário sincronizado
+  const syncedUser = localStorage.getItem('syncedUser');
+  const currentUser = localStorage.getItem('nutriScanUser');
+
+  if (syncedUser && !currentUser) {
+    // Restaurar usuário sincronizado
+    localStorage.setItem('nutriScanUser', syncedUser);
+    console.log('Usuário restaurado da sincronização');
+  }
+
+  // Sincronizar dados quando houver mudanças
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'nutriScanUser') {
+      localStorage.setItem('syncedUser', e.newValue);
+      console.log('Usuário sincronizado automaticamente');
     }
-    
-    // Sincronizar dados quando houver mudanças
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'nutriScanUser') {
-            localStorage.setItem('syncedUser', e.newValue);
-            console.log('Usuário sincronizado automaticamente');
-        }
-    });
-    
-    // Função para forçar sincronização
-    window.forceUserSync = function() {
-        const user = localStorage.getItem('nutriScanUser');
-        if (user) {
-            localStorage.setItem('syncedUser', user);
-            console.log('Sincronização forçada realizada');
-            return true;
-        }
-        return false;
-    };
+  });
+
+  // Função para forçar sincronização
+  window.forceUserSync = function () {
+    const user = localStorage.getItem('nutriScanUser');
+    if (user) {
+      localStorage.setItem('syncedUser', user);
+      console.log('Sincronização forçada realizada');
+      return true;
+    }
+    return false;
+  };
 });
 /**
  * Integração com Mercado Pago - QR Code PIX
@@ -5801,7 +5673,7 @@ class MercadoPagoPixIntegration {
           'Authorization': `Bearer ${localStorage.getItem('nutriScanToken')}`
         }
       });
-      
+
       if (response.ok) {
         const config = await response.json();
         this.publicKey = config.publicKey;
@@ -5910,7 +5782,7 @@ class MercadoPagoPixIntegration {
     const checkInterval = setInterval(async () => {
       try {
         const status = await this.checkPixStatus(transactionId);
-        
+
         if (status.status === 'paid' || status.status === 'approved') {
           clearInterval(checkInterval);
           callback({ success: true, status: 'paid', data: status });
@@ -6174,7 +6046,7 @@ class PaymentIntegration {
     return second === parseInt(digits[10]);
   }
 
-    
+
 
   async getTransactionHistory(limit = 10) {
     await this.ensureInitialized();
@@ -6203,7 +6075,7 @@ class PaymentIntegration {
     return {
       serverAvailable: this.isServerAvailable,
       usingMockData: this.usesMockData,
-      message: this.usesMockData 
+      message: this.usesMockData
         ? 'Usando modo de teste com dados fictícios'
         : 'Sistema de pagamento conectado ao servidor'
     };
@@ -6619,7 +6491,7 @@ class QRCodeGenerator {
       // Usar API externa como fallback (funciona offline com cache)
       const encodedText = encodeURIComponent(text);
       const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodedText}&color=2ecc71&bgcolor=ffffff`;
-      
+
       return qrImageUrl;
     } catch (error) {
       console.error('Erro ao gerar QR Code manual:', error);
@@ -6652,7 +6524,7 @@ class QRCodeGenerator {
       // Criar script dinamicamente
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-      
+
       script.onload = () => {
         this.qrCodeLibLoaded = typeof QRCode !== 'undefined';
         console.log('✓ QRCode.js carregado');
@@ -6675,7 +6547,7 @@ let qrCodeGenerator;
 
 if (typeof window !== 'undefined') {
   qrCodeGenerator = new QRCodeGenerator();
-  
+
   // Carregar biblioteca ao iniciar
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -6725,10 +6597,10 @@ class PaymentMockService {
   async generateMockPIX(amount, description) {
     const pixId = `pix_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const pixCode = this.generatePixCode();
-    
+
     // Usar image.png como QR Code estático
     const qrCode = 'qr-code-pix.png';
-    
+
     const pixData = {
       success: true,
       payment: {
@@ -6801,7 +6673,7 @@ class PaymentMockService {
       payment: {
         id: cardId,
         status: isApproved ? 'approved' : 'rejected',
-        statusDetail: isApproved 
+        statusDetail: isApproved
           ? 'Pagamento aprovado com sucesso! Processando assinatura...'
           : 'Cartão recusado. Verifique os dados e tente novamente.',
         amount: parseFloat(amount),
@@ -6840,7 +6712,7 @@ class PaymentMockService {
 
     // Simular mudança de status ao longo do tempo
     let status = transaction.status;
-    
+
     if (transaction.status === 'pending') {
       // Aleatoriamente marcar como pago após alguns segundos
       if (Math.random() > 0.5) {
@@ -6909,7 +6781,7 @@ class PaymentMockService {
     const pixKey = 'myhpc3301@gmail.com';
     const transactionId = `MP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
     const amount = '0000000000990'; // R$ 9,90 em formato PIX
-    
+
     // VALOR DO PIX
     return `00020126360014br.gov.bcb.pix0114+554499736812952040000530398654049.905802BR5924Bruno Perandre Nunes Dos6009Sao Paulo62240520daqr339692014808645263042248`;
   }
@@ -6973,11 +6845,11 @@ class PaymentMockService {
   // ── Mock: Simular webhook de pagamento ───────────────────
   async processWebhookMock(paymentId) {
     const transaction = this.transactions.find(t => t.id === paymentId);
-    
+
     if (transaction) {
       transaction.status = 'paid';
       transaction.paidAt = new Date().toISOString();
-      
+
       return {
         success: true,
         message: 'Webhook recebido e processado',
@@ -6998,16 +6870,16 @@ if (typeof window !== 'undefined') {
   paymentMockService = new PaymentMockService();
 }
 
-  // Retornar informações de cliente mock (utilitário)
-  PaymentMockService.prototype.getMockCustomerInfo = async function() {
-    const keys = Object.keys(this.mockUsers || {});
-    const u = this.mockUsers[keys[0]] || {};
-    return {
-      name: u.name || 'Comprador Teste',
-      email: u.email || 'TESTUSER2312961698484744720@testuser.com',
-      cpf: u.cpf || '123.456.789-09'
-    };
+// Retornar informações de cliente mock (utilitário)
+PaymentMockService.prototype.getMockCustomerInfo = async function () {
+  const keys = Object.keys(this.mockUsers || {});
+  const u = this.mockUsers[keys[0]] || {};
+  return {
+    name: u.name || 'Comprador Teste',
+    email: u.email || 'TESTUSER2312961698484744720@testuser.com',
+    cpf: u.cpf || '123.456.789-09'
   };
+};
 
 // Exemplo de uso:
 /*
@@ -7179,7 +7051,7 @@ class PaymentSystemTest {
       // Gerar algumas transações
       await paymentMockService.generateMockPIX(9.90);
       await paymentMockService.generateMockBoleto(9.90, { name: 'Test', email: 'test@test.com' });
-      
+
       const history = paymentMockService.getMockTransactionHistory(5);
       this.assertTrue(Array.isArray(history), 'Histórico deve ser array');
       this.assertTrue(history.length >= 2, 'Deve ter pelo menos 2 transações');
@@ -7279,18 +7151,18 @@ function scrollToSection(sectionId) {
 }
 
 // Aguardar DOM carregar
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   console.log('Script de correções carregado');
-  
+
   // Botões de assinatura - usar popup de upgrade
   document.querySelectorAll('.plan-button, .btn-pricing, .btn-primary').forEach(button => {
     // Verificar se é botão de assinatura
-    if (button.textContent.includes('Assinar') || 
-        button.textContent.includes('Upgrade') || 
-        button.textContent.includes('Premium')) {
-      button.addEventListener('click', function(e) {
+    if (button.textContent.includes('Assinar') ||
+      button.textContent.includes('Upgrade') ||
+      button.textContent.includes('Premium')) {
+      button.addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         // Usar o popup de upgrade
         if (typeof showUpgradePopup === 'function') {
           showUpgradePopup();
@@ -7306,9 +7178,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Botão de upload/demo
   const uploadBtn = document.querySelector('.upload-btn, .btn-demo');
   if (uploadBtn) {
-    uploadBtn.addEventListener('click', function(e) {
+    uploadBtn.addEventListener('click', function (e) {
       e.preventDefault();
-      
+
       // Simular upload e scan
       simulateUploadAndScan();
     });
@@ -7317,9 +7189,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Formulário de contato
   const contactForm = document.querySelector('#contactForm, .contact-form form');
   if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    contactForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      
+
       // Simular envio do formulário
       simulateContactForm(this);
     });
@@ -7328,9 +7200,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Newsletter
   const newsletterForm = document.querySelector('.newsletter-form');
   if (newsletterForm) {
-    newsletterForm.addEventListener('submit', function(e) {
+    newsletterForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      
+
       // Simular inscrição
       simulateNewsletter(this);
     });
@@ -7340,26 +7212,26 @@ document.addEventListener('DOMContentLoaded', function() {
   // Funciona em Desktop, Tablet e Mobile
   const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
   const navMenu = document.querySelector('.nav-menu');
-  
+
   if (mobileMenuToggle && navMenu) {
     // Toggle do menu ao clicar no hamburger
-    mobileMenuToggle.addEventListener('click', function(e) {
+    mobileMenuToggle.addEventListener('click', function (e) {
       e.stopPropagation();
       navMenu.classList.toggle('active');
       mobileMenuToggle.classList.toggle('active');
     });
-    
+
     // Fechar menu ao clicar em um link
     const navLinks = navMenu.querySelectorAll('.nav-link, .nav-menu a');
     navLinks.forEach(link => {
-      link.addEventListener('click', function() {
+      link.addEventListener('click', function () {
         navMenu.classList.remove('active');
         mobileMenuToggle.classList.remove('active');
       });
     });
-    
+
     // Fechar menu ao clicar fora dele
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       if (!mobileMenuToggle.contains(e.target) && !navMenu.contains(e.target)) {
         if (navMenu.classList.contains('active')) {
           navMenu.classList.remove('active');
@@ -7367,9 +7239,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
-    
+
     // Fechar menu ao redimensionar a janela para desktop
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
       if (window.innerWidth > 900) {
         // Se voltou ao tamanho desktop, fechar o menu mobile
         if (navMenu.classList.contains('active')) {
@@ -7385,7 +7257,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Suporte a tecla ESC para fechar menu
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && navMenu.classList.contains('active')) {
         navMenu.classList.remove('active');
         mobileMenuToggle.classList.remove('active');
@@ -7396,119 +7268,119 @@ document.addEventListener('DOMContentLoaded', function() {
   // Demo upload functionality
   const demoUpload = document.getElementById('demoUpload');
   if (demoUpload) {
-    demoUpload.addEventListener('click', function() {
+    demoUpload.addEventListener('click', function () {
       simulateUploadAndScan();
     });
   }
 
-// Validar arquivo de imagem
-function validateImageFile(file) {
-  const maxSize = 10 * 1024 * 1024; // 10MB
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  
-  const validation = {
-    isValid: true,
-    errors: []
-  };
-  
-  // Verificar tamanho
-  if (file.size > maxSize) {
-    validation.isValid = false;
-    validation.errors.push('O arquivo deve ter no máximo 10MB');
-  }
-  
-  // Verificar tipo
-  if (!allowedTypes.includes(file.type)) {
-    validation.isValid = false;
-    validation.errors.push('Formato não suportado. Use: JPG, PNG ou WebP');
-  }
-  
-  // Verificar dimensões (se possível)
-  if (file.type.startsWith('image/')) {
-    const img = new Image();
-    img.onload = function() {
-      if (this.width < 200 || this.height < 200) {
-        validation.isValid = false;
-        validation.errors.push('A imagem deve ter pelo menos 200x200px');
-      }
-      if (this.width > 4000 || this.height > 4000) {
-        validation.isValid = false;
-        validation.errors.push('A imagem deve ter no máximo 4000x4000px');
-      }
+  // Validar arquivo de imagem
+  function validateImageFile(file) {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+    const validation = {
+      isValid: true,
+      errors: []
     };
-    img.src = URL.createObjectURL(file);
-  }
-  
-  return validation;
-}
 
-// Criar input de arquivo real para upload
-function createImageUploadInput() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.style.display = 'none';
-  
-  input.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const validation = validateImageFile(file);
-    
-    if (!validation.isValid) {
-      showNotification('Erro na validação da imagem:', 'error', {
-        duration: 8000,
-        actions: [
-          {
-            text: 'Verificar requisitos',
-            icon: 'info-circle',
-            onClick: 'showImageRequirements()'
-          }
-        ]
-      });
-      
-      // Mostrar erros específicos
-      validation.errors.forEach(error => {
-        setTimeout(() => {
-          showNotification(error, 'warning', { duration: 3000 });
-        }, 500);
-      });
-      
-      return;
+    // Verificar tamanho
+    if (file.size > maxSize) {
+      validation.isValid = false;
+      validation.errors.push('O arquivo deve ter no máximo 10MB');
     }
-    
-    // Se válido, processar imagem
-    processImageFile(file);
-  });
-  
-  return input;
-}
 
-// Processar arquivo de imagem
-function processImageFile(file) {
-  const reader = new FileReader();
-  
-  reader.onload = function(e) {
-    const imageData = e.target.result;
-    
-    // Mostrar preview da imagem
-    showImagePreview(imageData, file.name);
-    
-    // Iniciar scan com a imagem real
-    simulateUploadAndScan(imageData);
-  };
-  
-  reader.onerror = function() {
-    showNotification('Erro ao ler o arquivo de imagem', 'error');
-  };
-  
-  reader.readAsDataURL(file);
-}
+    // Verificar tipo
+    if (!allowedTypes.includes(file.type)) {
+      validation.isValid = false;
+      validation.errors.push('Formato não suportado. Use: JPG, PNG ou WebP');
+    }
 
-// Mostrar preview da imagem
-function showImagePreview(imageData, fileName) {
-  const preview = document.createElement('div');
-  preview.style.cssText = `
+    // Verificar dimensões (se possível)
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      img.onload = function () {
+        if (this.width < 200 || this.height < 200) {
+          validation.isValid = false;
+          validation.errors.push('A imagem deve ter pelo menos 200x200px');
+        }
+        if (this.width > 4000 || this.height > 4000) {
+          validation.isValid = false;
+          validation.errors.push('A imagem deve ter no máximo 4000x4000px');
+        }
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
+    return validation;
+  }
+
+  // Criar input de arquivo real para upload
+  function createImageUploadInput() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+
+    input.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const validation = validateImageFile(file);
+
+      if (!validation.isValid) {
+        showNotification('Erro na validação da imagem:', 'error', {
+          duration: 8000,
+          actions: [
+            {
+              text: 'Verificar requisitos',
+              icon: 'info-circle',
+              onClick: 'showImageRequirements()'
+            }
+          ]
+        });
+
+        // Mostrar erros específicos
+        validation.errors.forEach(error => {
+          setTimeout(() => {
+            showNotification(error, 'warning', { duration: 3000 });
+          }, 500);
+        });
+
+        return;
+      }
+
+      // Se válido, processar imagem
+      processImageFile(file);
+    });
+
+    return input;
+  }
+
+  // Processar arquivo de imagem
+  function processImageFile(file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const imageData = e.target.result;
+
+      // Mostrar preview da imagem
+      showImagePreview(imageData, file.name);
+
+      // Iniciar scan com a imagem real
+      simulateUploadAndScan(imageData);
+    };
+
+    reader.onerror = function () {
+      showNotification('Erro ao ler o arquivo de imagem', 'error');
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  // Mostrar preview da imagem
+  function showImagePreview(imageData, fileName) {
+    const preview = document.createElement('div');
+    preview.style.cssText = `
     position: fixed;
     bottom: 20px;
     left: 20px;
@@ -7522,8 +7394,8 @@ function showImagePreview(imageData, fileName) {
     gap: 1rem;
     animation: slideUp 0.3s ease;
   `;
-  
-  preview.innerHTML = `
+
+    preview.innerHTML = `
     <img src="${imageData}" alt="${fileName}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
     <div>
       <div style="font-weight: 600; color: #2c3e50; margin-bottom: 0.25rem;">${fileName}</div>
@@ -7533,22 +7405,22 @@ function showImagePreview(imageData, fileName) {
       <i class="fas fa-times"></i>
     </button>
   `;
-  
-  document.body.appendChild(preview);
-  
-  // Auto remover após 5 segundos
-  setTimeout(() => {
-    if (preview.parentNode) {
-      preview.style.animation = 'slideDown 0.3s ease forwards';
-      setTimeout(() => preview.remove(), 300);
-    }
-  }, 5000);
-}
 
-// Mostrar requisitos de imagem
-function showImageRequirements() {
-  const modal = document.createElement('div');
-  modal.style.cssText = `
+    document.body.appendChild(preview);
+
+    // Auto remover após 5 segundos
+    setTimeout(() => {
+      if (preview.parentNode) {
+        preview.style.animation = 'slideDown 0.3s ease forwards';
+        setTimeout(() => preview.remove(), 300);
+      }
+    }, 5000);
+  }
+
+  // Mostrar requisitos de imagem
+  function showImageRequirements() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
     position: fixed;
     top: 0;
     left: 0;
@@ -7560,8 +7432,8 @@ function showImageRequirements() {
     align-items: center;
     z-index: 10000;
   `;
-  
-  modal.innerHTML = `
+
+    modal.innerHTML = `
     <div style="background: white; padding: 2rem; border-radius: 15px; max-width: 500px; width: 90%;">
       <h3 style="margin: 0; color: #2c3e50; margin-bottom: 1.5rem;">
         <i class="fas fa-image" style="color: #3498db; margin-right: 0.5rem;"></i>
@@ -7592,12 +7464,12 @@ function showImageRequirements() {
       </button>
     </div>
   `;
-  
-  // Adicionar CSS para requisitos
-  if (!document.querySelector('#requirementsStyles')) {
-    const style = document.createElement('style');
-    style.id = 'requirementsStyles';
-    style.textContent = `
+
+    // Adicionar CSS para requisitos
+    if (!document.querySelector('#requirementsStyles')) {
+      const style = document.createElement('style');
+      style.id = 'requirementsStyles';
+      style.textContent = `
       .requirements-list {
         display: flex;
         flex-direction: column;
@@ -7636,18 +7508,18 @@ function showImageRequirements() {
         }
       }
     `;
-    document.head.appendChild(style);
-  }
-  
-  document.body.appendChild(modal);
-  
-  // Fechar ao clicar fora
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      modal.remove();
+      document.head.appendChild(style);
     }
-  });
-}
+
+    document.body.appendChild(modal);
+
+    // Fechar ao clicar fora
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
 
   // Navegação suave
   setupSmoothScrolling();
@@ -7701,7 +7573,7 @@ function showLoginRequiredWarning() {
   document.body.appendChild(modal);
 
   // Fechar modal ao clicar fora
-  modal.addEventListener('click', function(e) {
+  modal.addEventListener('click', function (e) {
     if (e.target === modal) {
       modal.remove();
     }
@@ -7851,10 +7723,10 @@ function showAdvancedLoading() {
       }
     }
   `;
-  
+
   document.head.appendChild(style);
   document.body.appendChild(loadingOverlay);
-  
+
   return loadingOverlay;
 }
 
@@ -7862,7 +7734,7 @@ function showAdvancedLoading() {
 function updateLoadingProgress(step, progress) {
   const steps = document.querySelectorAll('.step');
   const progressBar = document.getElementById('scanProgressBar');
-  
+
   // Atualizar steps
   steps.forEach((stepEl, index) => {
     if (index < step) {
@@ -7871,7 +7743,7 @@ function updateLoadingProgress(step, progress) {
       stepEl.classList.remove('active');
     }
   });
-  
+
   // Atualizar progress bar
   if (progressBar) {
     progressBar.style.width = `${progress}%`;
@@ -7891,26 +7763,26 @@ function simulateUploadAndScan() {
 
   // Mostrar loading avançado
   const loadingOverlay = showAdvancedLoading();
-  
+
   // Simular etapas do processo
   setTimeout(() => updateLoadingProgress(1, 25), 500);
   setTimeout(() => updateLoadingProgress(2, 50), 1500);
   setTimeout(() => updateLoadingProgress(3, 75), 2500);
   setTimeout(() => updateLoadingProgress(4, 100), 3500);
-  
+
   // Simular delay total
   setTimeout(() => {
     // Remover loading
     loadingOverlay.remove();
-    
+
     // Mostrar resultado
     showScanResult();
-    
+
     // Mostrar feedback visual no botão
     const originalText = uploadBtn.innerHTML;
     uploadBtn.innerHTML = '<i class="fas fa-check"></i> Scan Concluído!';
     uploadBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
-    
+
     setTimeout(() => {
       uploadBtn.innerHTML = originalText;
       uploadBtn.style.background = '';
@@ -7985,7 +7857,7 @@ function showScanResult(imageData = null) {
   document.body.appendChild(modal);
 
   // Fechar modal ao clicar fora
-  modal.addEventListener('click', function(e) {
+  modal.addEventListener('click', function (e) {
     if (e.target === modal) {
       modal.remove();
     }
@@ -8004,13 +7876,13 @@ function simulateContactForm(form) {
   // Simular envio
   setTimeout(() => {
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Enviado!';
-    
+
     // Mostrar mensagem de sucesso
     showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-    
+
     // Limpar formulário
     form.reset();
-    
+
     // Restaurar botão
     setTimeout(() => {
       submitBtn.innerHTML = originalText;
@@ -8031,13 +7903,13 @@ function simulateNewsletter(form) {
   // Simular inscrição
   setTimeout(() => {
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Inscrito!';
-    
+
     // Mostrar mensagem de sucesso
     showNotification('Inscrição realizada com sucesso! Obrigado por se inscrever na nossa newsletter.', 'success');
-    
+
     // Limpar formulário
     form.reset();
-    
+
     // Restaurar botão
     setTimeout(() => {
       submitBtn.innerHTML = originalText;
@@ -8049,14 +7921,14 @@ function simulateNewsletter(form) {
 // Configurar navegação suave
 function setupSmoothScrolling() {
   const links = document.querySelectorAll('a[href^="#"]');
-  
+
   links.forEach(link => {
-    link.addEventListener('click', function(e) {
+    link.addEventListener('click', function (e) {
       e.preventDefault();
-      
+
       const targetId = this.getAttribute('href').substring(1);
       const targetElement = document.getElementById(targetId);
-      
+
       if (targetElement) {
         targetElement.scrollIntoView({
           behavior: 'smooth',
@@ -8288,7 +8160,7 @@ if (!document.querySelector('#notificationAnimations')) {
 // Configurar navegação suave
 function setupSmoothScrolling() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href'));
       if (target) {
@@ -8296,7 +8168,7 @@ function setupSmoothScrolling() {
           behavior: 'smooth',
           block: 'start'
         });
-        
+
         // Fechar menu mobile se estiver aberto
         const navMenu = document.querySelector('.nav-menu');
         const mobileToggle = document.querySelector('.mobile-menu-toggle');
@@ -8313,7 +8185,7 @@ function setupSmoothScrolling() {
 function saveScanToDashboard(productName, status, imageData = null) {
   // Atualizar estatísticas em tempo real
   updateDashboardStats(status);
-  
+
   // Verificar se a função global está disponível (se o dashboard foi carregado)
   if (typeof addScanToDashboard === 'function') {
     addScanToDashboard(productName, status, imageData);
@@ -8336,27 +8208,27 @@ function saveScanToDashboard(productName, status, imageData = null) {
 function updateDashboardStats(status) {
   // Obter estatísticas atuais
   let stats = JSON.parse(localStorage.getItem('dashboardStats') || '{}');
-  
+
   // Inicializar estatísticas se não existirem
   if (!stats.totalScans) stats.totalScans = 0;
   if (!stats.safeProducts) stats.safeProducts = 0;
   if (!stats.warningsFound) stats.warningsFound = 0;
   if (!stats.planUsage) stats.planUsage = 0;
   if (!stats.planLimit) stats.planLimit = 10;
-  
+
   // Atualizar contadores
   stats.totalScans++;
   stats.planUsage++;
-  
+
   if (status === 'safe') {
     stats.safeProducts++;
   } else if (status === 'warning' || status === 'danger') {
     stats.warningsFound++;
   }
-  
+
   // Salvar estatísticas atualizadas
   localStorage.setItem('dashboardStats', JSON.stringify(stats));
-  
+
   // Se o dashboard estiver aberto, atualizar a interface
   if (typeof updateDashboardUI === 'function') {
     updateDashboardUI(stats);
@@ -8370,7 +8242,7 @@ function handleHeroStartFree() {
     showLoginRequiredWarning();
     return;
   }
-  
+
   // Usuário logado, redirecionar para dashboard (SPA routing)
   window.location.hash = 'dashboard';
 }
@@ -8386,90 +8258,90 @@ window.NutriScanCorrections = {
 // Disponibilizar função globalmente
 window.handleHeroStartFree = handleHeroStartFree;
 
-   // SPA Routing System
-    class Router {
-      constructor() {
-        this.routes = {
-          '': 'home',
-          'home': 'home',
-          'dashboard': 'dashboard',
-          'login': 'login',
-          'signup': 'signup',
-          'scanner': 'scanner',
-          'payment': 'payment',
-          'settings': 'settings',
-          'profile': 'profile',
-          'history': 'history',
-          'help': 'help',
-          'privacy': 'privacy',
-          'plans': 'plans',
-          'allergy-scanner': 'allergy-scanner',
-          'payment-tester': 'payment-tester'
-        };
-        this.init();
+// SPA Routing System
+class Router {
+  constructor() {
+    this.routes = {
+      '': 'home',
+      'home': 'home',
+      'dashboard': 'dashboard',
+      'login': 'login',
+      'signup': 'signup',
+      'scanner': 'scanner',
+      'payment': 'payment',
+      'settings': 'settings',
+      'profile': 'profile',
+      'history': 'history',
+      'help': 'help',
+      'privacy': 'privacy',
+      'plans': 'plans',
+      'allergy-scanner': 'allergy-scanner',
+      'payment-tester': 'payment-tester'
+    };
+    this.init();
+  }
+
+  init() {
+    window.addEventListener('hashchange', () => this.handleRoute());
+    window.addEventListener('load', () => this.handleRoute());
+
+    // Intercept all link clicks
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a');
+      if (link && link.getAttribute('href')?.startsWith('#')) {
+        e.preventDefault();
+        const hash = link.getAttribute('href').substring(1);
+        this.navigate(hash);
       }
+    });
+  }
 
-      init() {
-        window.addEventListener('hashchange', () => this.handleRoute());
-        window.addEventListener('load', () => this.handleRoute());
-        
-        // Intercept all link clicks
-        document.addEventListener('click', (e) => {
-          const link = e.target.closest('a');
-          if (link && link.getAttribute('href')?.startsWith('#')) {
-            e.preventDefault();
-            const hash = link.getAttribute('href').substring(1);
-            this.navigate(hash);
-          }
-        });
-      }
+  handleRoute() {
+    const hash = window.location.hash.substring(1);
+    const page = this.routes[hash] || 'home';
+    this.showPage(page);
+  }
 
-      handleRoute() {
-        const hash = window.location.hash.substring(1);
-        const page = this.routes[hash] || 'home';
-        this.showPage(page);
-      }
+  navigate(page) {
+    window.location.hash = page;
+  }
 
-      navigate(page) {
-        window.location.hash = page;
-      }
+  showPage(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(section => {
+      section.classList.remove('active');
+    });
 
-      showPage(pageId) {
-        // Hide all pages
-        document.querySelectorAll('.page-section').forEach(section => {
-          section.classList.remove('active');
-        });
+    // Show target page
+    const targetPage = document.getElementById(`page-${pageId}`);
+    if (targetPage) {
+      targetPage.classList.add('active');
 
-        // Show target page
-        const targetPage = document.getElementById(`page-${pageId}`);
-        if (targetPage) {
-          targetPage.classList.add('active');
-          
-          // Scroll to top
-          window.scrollTo(0, 0);
-        }
-
-        // Update navigation active states
-        document.querySelectorAll('.nav-link').forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('href') === `#${pageId}`) {
-            link.classList.add('active');
-          }
-        });
-      }
+      // Scroll to top
+      window.scrollTo(0, 0);
     }
 
-    // Global navigation function
-    function navigateTo(page) {
-      window.location.hash = page;
-    }
-
-    // Initialize router
-    const router = new Router();
-
-    // Show loading page initially, then redirect to home
-    setTimeout(() => {
-      if (!window.location.hash) {
-        navigateTo('home');
+    // Update navigation active states
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${pageId}`) {
+        link.classList.add('active');
       }
-    }, 1000);
+    });
+  }
+}
+
+// Global navigation function
+function navigateTo(page) {
+  window.location.hash = page;
+}
+
+// Initialize router
+const router = new Router();
+
+// Show loading page initially, then redirect to home
+setTimeout(() => {
+  if (!window.location.hash) {
+    navigateTo('home');
+  }
+}, 1000);
